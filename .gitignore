@@ -4,3 +4,4 @@ node_modules/
 urls.txt
 *.log
 package-lock.json
+scraper-progress.json

@@ -2,9 +2,11 @@
   "name": "youtube-subtitles",
   "version": "1.0.0",
   "description": "Automated YouTube caption scraper",
-  "main": "scraper.js",
+  "main": "scraper-v2.js",
   "scripts": {
-    "start": "node scraper.js",
+    "start": "node scraper-v2.js",
+    "scrape": "node scraper-v2.js",
+    "read": "node reader.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
