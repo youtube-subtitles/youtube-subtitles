@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Subtitles API</title>
     <meta name="description" content="Automated YouTube caption scraper with static API hosted on GitHub Pages">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📹</text></svg>">
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/232534921?s=200&v=4">
     <style>
         * {
             margin: 0;
@@ -17,7 +17,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
             line-height: 1.6;
             color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
             min-height: 100vh;
         }
 
@@ -28,7 +28,7 @@
         }
 
         .header {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             position: sticky;
@@ -44,10 +44,19 @@
         }
 
         .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             font-size: 1.5rem;
             font-weight: 700;
             color: white;
             text-decoration: none;
+        }
+
+        .logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
         }
 
         .nav-links {
@@ -152,7 +161,7 @@
             border-radius: 8px;
             padding: 1.5rem;
             margin: 1rem 0;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #ff0000;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
@@ -179,32 +188,34 @@
         }
 
         .code-block {
-            background: #2d3748;
-            color: #e2e8f0;
+            background: #1a1a1a;
+            color: #f8f8f2;
             padding: 1.5rem;
             border-radius: 8px;
-            font-family: 'Monaco', 'Consolas', monospace;
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
             font-size: 0.9rem;
             overflow-x: auto;
             margin: 1rem 0;
+            line-height: 1.4;
         }
 
         .button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #ff0000;
             color: white;
             padding: 0.75rem 2rem;
             border: none;
-            border-radius: 8px;
+            border-radius: 20px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s;
             text-decoration: none;
             display: inline-block;
         }
 
         .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            background: #cc0000;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
         }
 
         .try-it {
@@ -250,7 +261,10 @@
 <body>
     <header class="header">
         <nav class="nav container">
-            <a href="#" class="logo">📹 YouTube Subtitles API</a>
+            <a href="#" class="logo">
+                <img src="https://avatars.githubusercontent.com/u/232534921?s=200&v=4" alt="YouTube Subtitles Logo">
+                YouTube Subtitles API
+            </a>
             <ul class="nav-links">
                 <li><a href="#api">API Reference</a></li>
                 <li><a href="#examples">Examples</a></li>
@@ -289,7 +303,7 @@
                         <h2>🚀 Submit URLs for Processing</h2>
                         <p>Submit YouTube URLs via our webhook API and they'll be automatically processed and added to the database.</p>
 
-                        <div class="code-block">fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
+                        <pre class="code-block">fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -298,7 +312,7 @@
       urls: ['https://www.youtube.com/watch?v=dQw4w9WgXcQ']
     }
   })
-});</div>
+});</pre>
 
                         <div class="try-it">
                             <h4>🎯 Try it now:</h4>
@@ -353,7 +367,7 @@
                         <h2>💻 Code Examples</h2>
 
                         <h3>JavaScript/Node.js</h3>
-                        <div class="code-block">// Get video metadata
+                        <pre class="code-block">// Get video metadata
 const video = await fetch('https://youtube-subtitles.github.io/api/video/dQw4w9WgXcQ-metadata.json')
   .then(r => r.json());
 
@@ -363,10 +377,10 @@ console.log(video.title); // "Rick Astley - Never Gonna Give You Up"
 const authors = await fetch('https://youtube-subtitles.github.io/api/search/authors.json')
   .then(r => r.json());
 
-const rickVideos = authors['Rick Astley']; // ["dQw4w9WgXcQ"]</div>
+const rickVideos = authors['Rick Astley']; // ["dQw4w9WgXcQ"]</pre>
 
                         <h3>Python</h3>
-                        <div class="code-block">import requests
+                        <pre class="code-block">import requests
 
 # Get video data
 video = requests.get('https://youtube-subtitles.github.io/api/video/dQw4w9WgXcQ.json').json()
@@ -374,19 +388,19 @@ print(video['title'])
 
 # Get all videos by author
 authors = requests.get('https://youtube-subtitles.github.io/api/search/authors.json').json()
-rick_videos = authors.get('Rick Astley', [])</div>
+rick_videos = authors.get('Rick Astley', [])</pre>
 
                         <h3>curl</h3>
-                        <div class="code-block"># Get video metadata
+                        <pre class="code-block"># Get video metadata
 curl https://youtube-subtitles.github.io/api/video/dQw4w9WgXcQ-metadata.json
 
 # Search by author
-curl https://youtube-subtitles.github.io/api/search/authors.json | jq '."Rick Astley"'</div>
+curl https://youtube-subtitles.github.io/api/search/authors.json | jq '."Rick Astley"'</pre>
                     </section>
 
                     <div id="api-response" style="display: none;">
                         <h3>API Response:</h3>
-                        <div class="code-block" id="response-content"></div>
+                        <pre class="code-block" id="response-content"></pre>
                     </div>
                 </div>
             </div>
