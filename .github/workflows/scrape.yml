@@ -40,6 +40,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Process webhook URLs
+        if: github.event_name == 'repository_dispatch'
+        run: |
+          echo "Processing webhook URLs..."
+          echo '${{ toJson(github.event.client_payload.urls) }}' > webhook_urls.json
+          if [ -f webhook_urls.json ] && [ -s webhook_urls.json ] && [ "$(cat webhook_urls.json)" != "null" ]; then
+            echo "$(cat webhook_urls.json | jq -r '.[]')" > urls.txt
+            echo "URLs added to processing queue:"
+            cat urls.txt
+          else
+            echo "No URLs found in webhook payload"
+          fi
+
       - name: Run scraper
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
