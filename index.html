@@ -157,7 +157,10 @@
                     </div>
                     <div class="text-center">
                         <div id="api-speed" class="text-3xl font-bold text-accent-green">~50ms</div>
-                        <div class="text-gray-400">Avg Response Time</div>
+                        <div class="text-gray-400 flex items-center justify-center">
+                            <span>Avg Response Time</span>
+                            <span id="refresh-indicator" class="ml-2 w-2 h-2 bg-accent-green rounded-full animate-pulse opacity-0 transition-opacity"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -450,6 +453,12 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
             // Load all endpoints automatically
             loadAllEndpoints();
 
+            // Start auto-refresh for stats every 5 seconds
+            setInterval(function() {
+                loadQueueStatus();
+                updateRefreshIndicator();
+            }, 5000);
+
             // Handle refresh buttons
             $('.try-endpoint-btn').click(function() {
                 const endpoint = $(this).data('endpoint');
@@ -551,6 +560,14 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
                     alert('❌ Failed to submit URL. Please try again.');
                 }
             });
+        }
+
+        function updateRefreshIndicator() {
+            const indicator = $('#refresh-indicator');
+            indicator.removeClass('opacity-0').addClass('opacity-100');
+            setTimeout(() => {
+                indicator.removeClass('opacity-100').addClass('opacity-0');
+            }, 1000);
         }
 
         function scrollToSection(sectionId) {
