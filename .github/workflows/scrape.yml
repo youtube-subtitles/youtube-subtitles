@@ -17,6 +17,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -38,6 +41,13 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Clean up old shard system files
+        run: |
+          echo "Cleaning up old shard system files..."
+          rm -rf data/ || true
+          git clean -fd || true
+          echo "Cleanup complete"
 
       - name: Process webhook URLs
         if: github.event_name == 'repository_dispatch'
@@ -107,6 +117,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          git stash --include-untracked || true
           git pull --rebase
           git add api/
           git commit -m "Update YouTube captions [skip ci]"
