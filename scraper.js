@@ -13,7 +13,7 @@ const CONFIG = {
   MAX_RETRIES: 3,
   RETRY_DELAY: 2000,
   COMMIT_BATCH_SIZE: 100,
-  MAX_RUNTIME_SECONDS: 55,  // Leave 5 seconds buffer for cron every minute
+  MAX_RUNTIME_SECONDS: 280, // Leave 20 seconds buffer for cron every 5 minutes
   RATE_LIMIT_DELAY: 1000,
   SHARD_SIZE: 1000,  // Videos per shard file
   INDEX_UPDATE_FREQUENCY: 100  // Update index every N videos
