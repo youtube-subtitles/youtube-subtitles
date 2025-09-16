@@ -295,7 +295,7 @@
                         <div class="flex-1">
                             <div class="flex items-center space-x-3 mb-2">
                                 <span class="api-badge">GET</span>
-                                <code class="text-lg font-mono text-gray-200">/api/video/</code><input type="text" value="WUvTyaaNkzM" class="video-id-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-28 inline"><code class="text-lg font-mono text-gray-200">-</code><input type="text" value="en" class="lang-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-8 inline"><code class="text-lg font-mono text-gray-200">.json</code>
+                                <code class="text-lg font-mono text-gray-200">/api/video/</code><input type="text" value="WUvTyaaNkzM" class="video-id-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-28 inline"><code class="text-lg font-mono text-gray-200">-</code><input type="text" value="auto_en" class="lang-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-16 inline"><code class="text-lg font-mono text-gray-200">.json</code>
                             </div>
                             <p class="text-gray-400 mb-2">Captions for specific language</p>
                             <div class="flex items-center space-x-2">
@@ -306,7 +306,7 @@
                             </div>
                         </div>
                         <button class="try-endpoint-btn bg-accent-green hover:bg-accent-blue px-4 py-2 rounded-lg transition-colors"
-                                data-endpoint="/api/video/WUvTyaaNkzM-en.json">
+                                data-endpoint="/api/video/WUvTyaaNkzM-auto_en.json">
                             🔄 Refresh
                         </button>
                     </div>
@@ -325,7 +325,7 @@
                         <div class="flex-1">
                             <div class="flex items-center space-x-3 mb-2">
                                 <span class="api-badge">GET</span>
-                                <code class="text-lg font-mono text-gray-200">/api/video/</code><input type="text" value="WUvTyaaNkzM" class="video-id-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-28 inline"><code class="text-lg font-mono text-gray-200">-</code><input type="text" value="en" class="lang-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-8 inline"><code class="text-lg font-mono text-gray-200">.srt</code>
+                                <code class="text-lg font-mono text-gray-200">/api/video/</code><input type="text" value="WUvTyaaNkzM" class="video-id-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-28 inline"><code class="text-lg font-mono text-gray-200">-</code><input type="text" value="auto_en" class="lang-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-16 inline"><code class="text-lg font-mono text-gray-200">.srt</code>
                             </div>
                             <p class="text-gray-400 mb-2">Captions in SRT format</p>
                             <div class="flex items-center space-x-2">
@@ -336,7 +336,7 @@
                             </div>
                         </div>
                         <button class="try-endpoint-btn bg-accent-green hover:bg-accent-blue px-4 py-2 rounded-lg transition-colors"
-                                data-endpoint="/api/video/WUvTyaaNkzM-en.srt">
+                                data-endpoint="/api/video/WUvTyaaNkzM-auto_en.srt">
                             🔄 Refresh
                         </button>
                     </div>
@@ -355,7 +355,7 @@
                         <div class="flex-1">
                             <div class="flex items-center space-x-3 mb-2">
                                 <span class="api-badge">GET</span>
-                                <code class="text-lg font-mono text-gray-200">/api/video/</code><input type="text" value="WUvTyaaNkzM" class="video-id-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-28 inline"><code class="text-lg font-mono text-gray-200">-</code><input type="text" value="en" class="lang-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-8 inline"><code class="text-lg font-mono text-gray-200">.txt</code>
+                                <code class="text-lg font-mono text-gray-200">/api/video/</code><input type="text" value="WUvTyaaNkzM" class="video-id-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-28 inline"><code class="text-lg font-mono text-gray-200">-</code><input type="text" value="auto_en" class="lang-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-16 inline"><code class="text-lg font-mono text-gray-200">.txt</code>
                             </div>
                             <p class="text-gray-400 mb-2">Captions in plain text</p>
                             <div class="flex items-center space-x-2">
@@ -366,7 +366,7 @@
                             </div>
                         </div>
                         <button class="try-endpoint-btn bg-accent-green hover:bg-accent-blue px-4 py-2 rounded-lg transition-colors"
-                                data-endpoint="/api/video/WUvTyaaNkzM-en.txt">
+                                data-endpoint="/api/video/WUvTyaaNkzM-auto_en.txt">
                             🔄 Refresh
                         </button>
                     </div>
@@ -617,9 +617,9 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
         function loadAllEndpoints() {
             loadEndpoint('/api/stats.json', 'stats-response');
             loadEndpoint('/api/video/dQw4w9WgXcQ.json', 'video-response');
-            loadEndpoint('/api/video/WUvTyaaNkzM-en.json', 'captions-json-response');
-            loadEndpoint('/api/video/WUvTyaaNkzM-en.srt', 'captions-srt-response');
-            loadEndpoint('/api/video/WUvTyaaNkzM-en.txt', 'captions-txt-response');
+            loadEndpoint('/api/video/WUvTyaaNkzM-auto_en.json', 'captions-json-response');
+            loadEndpoint('/api/video/WUvTyaaNkzM-auto_en.srt', 'captions-srt-response');
+            loadEndpoint('/api/video/WUvTyaaNkzM-auto_en.txt', 'captions-txt-response');
             loadEndpoint('/api/search/videos.json', 'search-response');
             loadQueueStatus();
         }
@@ -647,9 +647,9 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
         function getTargetId(endpoint) {
             if (endpoint.includes('stats')) return 'stats-response';
             if (endpoint.includes('search')) return 'search-response';
-            if (endpoint.includes('-en.json')) return 'captions-json-response';
-            if (endpoint.includes('-en.srt')) return 'captions-srt-response';
-            if (endpoint.includes('-en.txt')) return 'captions-txt-response';
+            if (endpoint.includes('-auto_en.json')) return 'captions-json-response';
+            if (endpoint.includes('-auto_en.srt')) return 'captions-srt-response';
+            if (endpoint.includes('-auto_en.txt')) return 'captions-txt-response';
             if (endpoint.includes('video/')) return 'video-response';
             return 'stats-response';
         }
