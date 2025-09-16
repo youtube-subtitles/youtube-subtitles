@@ -6,7 +6,6 @@ const path = require('path');
 class YouTubeAPI {
   constructor() {
     this.reader = new ShardReader();
-    this.setupRoutes();
   }
 
   async setupRoutes() {
@@ -345,6 +344,7 @@ class YouTubeAPI {
 
   async start(port = 3000) {
     try {
+      await this.setupRoutes();
       await fastify.listen({ port, host: '0.0.0.0' });
       console.log(`API server running on http://localhost:${port}`);
     } catch (err) {
