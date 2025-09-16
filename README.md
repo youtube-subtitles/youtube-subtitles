@@ -15,10 +15,20 @@ Automated YouTube caption scraper with static API generation. Scrapes video meta
 
 ### 1. Scraping Videos
 
-**Via GitHub Issues:**
-- Create issues with label `youtube-url`
-- Include YouTube URLs in issue body
-- GitHub Actions processes them automatically
+**Via Webhook API:**
+```javascript
+// Submit URLs for processing
+fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    event_type: 'scrape_urls',
+    client_payload: {
+      urls: ['https://www.youtube.com/watch?v=dQw4w9WgXcQ']
+    }
+  })
+});
+```
 
 **Local testing:**
 ```bash
