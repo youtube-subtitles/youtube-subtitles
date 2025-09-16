@@ -1,46 +1,8 @@
 {
   "videos": [
     {
-      "id": "3JZ_D3ELwOQ",
-      "title": "Flexin' On Ya (2014)",
-      "author": "Ray William Johnson",
-      "duration": 254,
-      "view_count": 4501045,
-      "upload_date": "Feb 12, 2014",
-      "has_captions": true,
-      "languages": [
-        "en"
-      ]
-    },
-    {
       "id": "9bZkp7q19f0",
-      "title": "PSY - GANGNAM STYLE(강남스타일) M/V",
-      "author": "officialpsy",
-      "duration": 252,
-      "view_count": 5705269982,
       "upload_date": "Jul 15, 2012",
-      "has_captions": true,
-      "languages": [
-        "en"
-      ]
-    },
-    {
-      "id": "LDU_Txk06tM",
-      "title": "Noisestorm - Crab Rave [Monstercat Release]",
-      "author": "Monstercat Instinct",
-      "duration": 192,
-      "view_count": 375893758,
-      "upload_date": "Apr 1, 2018",
-      "has_captions": false,
-      "languages": []
-    },
-    {
-      "id": "MtN1YnoL46Q",
-      "title": "The Duck Song",
-      "author": "forrestfire101",
-      "duration": 192,
-      "view_count": 666755154,
-      "upload_date": "Mar 23, 2009",
       "has_captions": false,
       "languages": []
     },
@@ -55,7 +17,7 @@
       "title": "The essence of calculus",
       "author": "3Blue1Brown",
       "duration": 1024,
-      "view_count": 10376287,
+      "view_count": 10376876,
       "upload_date": "Apr 28, 2017",
       "has_captions": true,
       "languages": [
@@ -98,7 +60,7 @@
       "title": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)",
       "author": "Rick Astley",
       "duration": 213,
-      "view_count": 1694123349,
+      "view_count": 1694158009,
       "upload_date": "Oct 25, 2009",
       "has_captions": true,
       "languages": [
@@ -111,16 +73,9 @@
     },
     {
       "id": "jNQXAC9IVRw",
-      "title": "Me at the zoo",
-      "author": "jawed",
-      "duration": 19,
-      "view_count": 371631900,
       "upload_date": "Apr 24, 2005",
-      "has_captions": true,
-      "languages": [
-        "en",
-        "de"
-      ]
+      "has_captions": false,
+      "languages": []
     },
     {
       "id": "kJQP7kiw5Fk",
@@ -130,69 +85,16 @@
     }
   ],
   "authors": {
-    "Ray William Johnson": [
-      "3JZ_D3ELwOQ"
-    ],
-    "officialpsy": [
-      "9bZkp7q19f0"
-    ],
-    "Monstercat Instinct": [
-      "LDU_Txk06tM"
-    ],
-    "forrestfire101": [
-      "MtN1YnoL46Q"
-    ],
     "3Blue1Brown": [
       "WUvTyaaNkzM"
     ],
     "Rick Astley": [
       "dQw4w9WgXcQ"
-    ],
-    "jawed": [
-      "jNQXAC9IVRw"
     ]
   },
   "keywords": {
-    "2014": [
-      "3JZ_D3ELwOQ"
-    ],
-    "flexin": [
-      "3JZ_D3ELwOQ"
-    ],
-    "psy": [
-      "9bZkp7q19f0"
-    ],
-    "gangnam": [
-      "9bZkp7q19f0"
-    ],
-    "style": [
-      "9bZkp7q19f0"
-    ],
-    "noisestorm": [
-      "LDU_Txk06tM"
-    ],
-    "crab": [
-      "LDU_Txk06tM"
-    ],
-    "rave": [
-      "LDU_Txk06tM"
-    ],
-    "monstercat": [
-      "LDU_Txk06tM"
-    ],
-    "release": [
-      "LDU_Txk06tM"
-    ],
     "the": [
-      "MtN1YnoL46Q",
-      "WUvTyaaNkzM",
-      "jNQXAC9IVRw"
-    ],
-    "duck": [
-      "MtN1YnoL46Q"
-    ],
-    "song": [
-      "MtN1YnoL46Q"
+      "WUvTyaaNkzM"
     ],
     "essence": [
       "WUvTyaaNkzM"
@@ -226,10 +128,7 @@
     ],
     "remaster": [
       "dQw4w9WgXcQ"
-    ],
-    "zoo": [
-      "jNQXAC9IVRw"
     ]
   },
-  "generated_at": "2025-09-16T15:59:24.582Z"
+  "generated_at": "2025-09-16T16:30:18.119Z"
 }
