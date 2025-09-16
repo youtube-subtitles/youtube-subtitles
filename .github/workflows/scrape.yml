@@ -2,7 +2,7 @@ name: Scrape YouTube Captions
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Run every 6 hours
+    - cron: '* * * * *'  # Run every minute
   workflow_dispatch:  # Allow manual trigger
   repository_dispatch:
     types: [scrape_urls]  # Webhook API trigger

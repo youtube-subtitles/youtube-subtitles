@@ -126,7 +126,7 @@ pnpm install
 ## Automated Pipelines
 
 ### Data Scraping (`scrape.yml`)
-- **Triggers**: Every 6 hours, new issues, manual
+- **Triggers**: Every minute, webhook API, manual
 - **Process**: Scrapes YouTube URLs → Stores in `data/`
 - **Output**: Compressed sharded data files
 
@@ -260,7 +260,7 @@ GITHUB_TOKEN=<token>     # For GitHub Actions (auto-provided)
 ```
 
 ### Workflow Schedules
-- **Data scraping**: Every 6 hours
+- **Data scraping**: Every minute
 - **API building**: Every 12 hours + on data changes
 - **Manual triggers**: Available for both workflows
 
