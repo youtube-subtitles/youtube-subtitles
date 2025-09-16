@@ -13,7 +13,7 @@ const CONFIG = {
   MAX_RETRIES: 3,
   RETRY_DELAY: 2000,
   COMMIT_BATCH_SIZE: 100,
-  MAX_RUNTIME_MINUTES: 50,
+  MAX_RUNTIME_SECONDS: 55,  // Leave 5 seconds buffer for cron every minute
   RATE_LIMIT_DELAY: 1000,
   SHARD_SIZE: 1000,  // Videos per shard file
   INDEX_UPDATE_FREQUENCY: 100  // Update index every N videos
@@ -323,7 +323,7 @@ class YouTubeScraperV2 {
 
   isTimeUp() {
     const elapsed = Date.now() - this.startTime;
-    return elapsed > CONFIG.MAX_RUNTIME_MINUTES * 60 * 1000;
+    return elapsed > CONFIG.MAX_RUNTIME_SECONDS * 1000;
   }
 
   async processBatch(urls) {
@@ -468,25 +468,40 @@ async function main() {
     const scraper = new YouTubeScraperV2();
     await scraper.initialize();
 
-    const urls = await getUnprocessedUrls();
+    // Check for more URLs every 5 seconds until timeout
+    let totalProcessed = 0;
+    while (!scraper.isTimeUp()) {
+      const urls = await getUnprocessedUrls();
 
-    if (urls.length === 0) {
-      console.log('No URLs to process');
-      return;
-    }
-
-    console.log(`Found ${urls.length} URLs to process`);
-
-    for (let i = 0; i < urls.length; i += CONFIG.BATCH_SIZE) {
-      if (scraper.isTimeUp()) {
-        console.log('Time limit reached, stopping');
-        break;
+      if (urls.length === 0) {
+        console.log('No URLs to process, waiting 5 seconds for more...');
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        continue;
       }
 
-      const batch = urls.slice(i, i + CONFIG.BATCH_SIZE);
-      await scraper.processBatch(batch);
+      console.log(`Found ${urls.length} URLs to process`);
 
-      console.log(`Progress: ${Math.min(i + CONFIG.BATCH_SIZE, urls.length)}/${urls.length} URLs processed`);
+      for (let i = 0; i < urls.length; i += CONFIG.BATCH_SIZE) {
+        if (scraper.isTimeUp()) {
+          console.log('Time limit reached, stopping');
+          break;
+        }
+
+        const batch = urls.slice(i, i + CONFIG.BATCH_SIZE);
+        await scraper.processBatch(batch);
+        totalProcessed += batch.length;
+
+        console.log(`Progress: ${Math.min(i + CONFIG.BATCH_SIZE, urls.length)}/${urls.length} URLs processed this round`);
+      }
+
+      // Clear processed URLs
+      try {
+        await fs.writeFile('urls.txt', '');
+      } catch (e) {
+        console.warn('Could not clear urls.txt:', e.message);
+      }
+
+      console.log(`Completed processing round. Total processed: ${totalProcessed}`);
     }
 
     // Final flush
@@ -504,7 +519,7 @@ async function main() {
 
     console.log(`
 Summary:
-- Processed: ${scraper.processedCount} videos
+- Total processed: ${totalProcessed} videos
 - Failed: ${scraper.failedUrls.length} URLs
     `);
 
