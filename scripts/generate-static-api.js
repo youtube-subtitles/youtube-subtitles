@@ -1,11 +1,9 @@
-const { ShardReader } = require('../scraper');
 const { QueueStatus } = require('./queue-status');
 const fs = require('fs').promises;
 const path = require('path');
 
 class StaticAPIGenerator {
   constructor() {
-    this.reader = new ShardReader();
     this.queueStatus = new QueueStatus();
     this.apiDir = 'api';
   }
@@ -28,11 +26,18 @@ class StaticAPIGenerator {
 
   async generateStats() {
     try {
-      const index = JSON.parse(await fs.readFile('data/index/master.json', 'utf-8'));
+      const videoDir = path.join(this.apiDir, 'video');
+      let totalVideos = 0;
+
+      try {
+        const files = await fs.readdir(videoDir);
+        totalVideos = files.filter(f => f.endsWith('.json') && !f.includes('-')).length;
+      } catch {
+        totalVideos = 0;
+      }
+
       const stats = {
-        total_videos: index.total,
-        shards: Object.keys(index.shards).length,
-        last_updated: index.updated,
+        total_videos: totalVideos,
         generated_at: new Date().toISOString()
       };
 
@@ -40,7 +45,7 @@ class StaticAPIGenerator {
         path.join(this.apiDir, 'stats.json'),
         JSON.stringify(stats, null, 2)
       );
-      console.log(`Generated stats.json`);
+      console.log(`Generated stats.json (${totalVideos} videos)`);
     } catch (error) {
       console.error('Failed to generate stats:', error.message);
     }
@@ -61,82 +66,13 @@ class StaticAPIGenerator {
   }
 
   async generateVideoEndpoints() {
-    try {
-      const index = JSON.parse(await fs.readFile('data/index/master.json', 'utf-8'));
-      let processed = 0;
-
-      for (const [shardPath, videoIds] of Object.entries(index.shards)) {
-        const videos = await this.getVideosFromShard(shardPath);
-
-        for (const video of videos) {
-          const languages = Object.keys(video.captions || {});
-
-          // Main video endpoint: metadata + available languages only (no caption text)
-          const videoOverview = {
-            id: video.id,
-            title: video.title,
-            author: video.author,
-            duration: video.duration,
-            view_count: video.view_count,
-            upload_date: video.upload_date,
-            url: video.url,
-            scraped_at: video.scraped_at,
-            has_captions: languages.length > 0,
-            languages
-          };
-          await fs.writeFile(
-            path.join(this.apiDir, 'video', `${video.id}.json`),
-            JSON.stringify(videoOverview, null, 2)
-          );
-
-          // Metadata only (same as overview without languages fields if desired)
-          const metadata = { ...videoOverview };
-          await fs.writeFile(
-            path.join(this.apiDir, 'video', `${video.id}-metadata.json`),
-            JSON.stringify(metadata, null, 2)
-          );
-
-          // Generate caption files for each language
-          if (video.captions) {
-            for (const [lang, captionData] of Object.entries(video.captions)) {
-              // SRT format
-              const srt = this.generateSRT(captionData.segments);
-              await fs.writeFile(
-                path.join(this.apiDir, 'video', `${video.id}-${lang}.srt`),
-                srt
-              );
-
-              // TXT format
-              const txt = captionData.segments.map(s => s.t).join(' ');
-              await fs.writeFile(
-                path.join(this.apiDir, 'video', `${video.id}-${lang}.txt`),
-                txt
-              );
-
-              // JSON captions
-              await fs.writeFile(
-                path.join(this.apiDir, 'video', `${video.id}-${lang}.json`),
-                JSON.stringify(captionData, null, 2)
-              );
-            }
-          }
-
-          processed++;
-          if (processed % 100 === 0) {
-            console.log(`Generated ${processed} video endpoints`);
-          }
-        }
-      }
-
-      console.log(`Generated ${processed} total video endpoints`);
-    } catch (error) {
-      console.error('Failed to generate video endpoints:', error.message);
-    }
+    console.log('Video endpoints are now generated directly by scraper - skipping');
+    return;
   }
 
   async generateSearchIndex() {
     try {
-      const index = JSON.parse(await fs.readFile('data/index/master.json', 'utf-8'));
+      const videoDir = path.join(this.apiDir, 'video');
       const searchIndex = {
         videos: [],
         authors: {},
@@ -144,49 +80,58 @@ class StaticAPIGenerator {
         generated_at: new Date().toISOString()
       };
 
-      for (const [shardPath, videoIds] of Object.entries(index.shards)) {
-        const videos = await this.getVideosFromShard(shardPath);
+      try {
+        const files = await fs.readdir(videoDir);
+        const videoFiles = files.filter(f => f.endsWith('.json') && !f.includes('-'));
 
-        for (const video of videos) {
-          // Add to main index
-          const videoEntry = {
-            id: video.id,
-            title: video.title,
-            author: video.author,
-            duration: video.duration,
-            view_count: video.view_count,
-            upload_date: video.upload_date,
-            has_captions: Object.keys(video.captions || {}).length > 0,
-            languages: Object.keys(video.captions || {})
-          };
+        for (const file of videoFiles) {
+          try {
+            const videoData = JSON.parse(await fs.readFile(path.join(videoDir, file), 'utf-8'));
 
-          searchIndex.videos.push(videoEntry);
+            // Add to main index
+            const videoEntry = {
+              id: videoData.id,
+              title: videoData.title,
+              author: videoData.author,
+              duration: videoData.duration,
+              view_count: videoData.view_count,
+              upload_date: videoData.upload_date,
+              has_captions: videoData.has_captions,
+              languages: videoData.languages || []
+            };
 
-          // Index by author
-          if (video.author) {
-            if (!searchIndex.authors[video.author]) {
-              searchIndex.authors[video.author] = [];
-            }
-            searchIndex.authors[video.author].push(video.id);
-          }
+            searchIndex.videos.push(videoEntry);
 
-          // Index keywords from title
-          if (video.title) {
-            const words = video.title.toLowerCase()
-              .replace(/[^\w\s]/g, '')
-              .split(/\s+/)
-              .filter(word => word.length > 2);
-
-            for (const word of words) {
-              if (!searchIndex.keywords[word]) {
-                searchIndex.keywords[word] = [];
+            // Index by author
+            if (videoData.author) {
+              if (!searchIndex.authors[videoData.author]) {
+                searchIndex.authors[videoData.author] = [];
               }
-              if (!searchIndex.keywords[word].includes(video.id)) {
-                searchIndex.keywords[word].push(video.id);
+              searchIndex.authors[videoData.author].push(videoData.id);
+            }
+
+            // Index keywords from title
+            if (videoData.title) {
+              const words = videoData.title.toLowerCase()
+                .replace(/[^\w\s]/g, '')
+                .split(/\s+/)
+                .filter(word => word.length > 2);
+
+              for (const word of words) {
+                if (!searchIndex.keywords[word]) {
+                  searchIndex.keywords[word] = [];
+                }
+                if (!searchIndex.keywords[word].includes(videoData.id)) {
+                  searchIndex.keywords[word].push(videoData.id);
+                }
               }
             }
+          } catch (error) {
+            console.warn(`Failed to process video file ${file}:`, error.message);
           }
         }
+      } catch (error) {
+        console.warn('No video directory found, creating empty search index');
       }
 
       // Write main search index
@@ -206,7 +151,7 @@ class StaticAPIGenerator {
         JSON.stringify(searchIndex.authors, null, 2)
       );
 
-      console.log('Generated search indexes');
+      console.log(`Generated search indexes (${searchIndex.videos.length} videos)`);
     } catch (error) {
       console.error('Failed to generate search index:', error.message);
     }
@@ -264,23 +209,6 @@ class StaticAPIGenerator {
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')},${String(milliseconds).padStart(3, '0')}`;
   }
 
-  async getVideosFromShard(shardPath) {
-    try {
-      const compressed = await fs.readFile(shardPath);
-      const zlib = require('zlib');
-      const { promisify } = require('util');
-      const gunzip = promisify(zlib.gunzip);
-
-      const decompressed = await gunzip(compressed);
-      const lines = decompressed.toString().split('\n');
-
-      return lines
-        .filter(line => line.trim())
-        .map(line => JSON.parse(line));
-    } catch {
-      return [];
-    }
-  }
 }
 
 if (require.main === module) {

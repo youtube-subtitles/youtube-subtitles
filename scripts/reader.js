@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-const { ShardReader } = require('../scraper');
+const fs = require('fs').promises;
+const path = require('path');
 
 async function main() {
   const args = process.argv.slice(2);
@@ -16,35 +17,63 @@ Usage:
   }
 
   const command = args[0];
-  const reader = new ShardReader();
 
   switch (command) {
     case 'get': {
       const videoId = args[1];
-      const video = await reader.getVideo(videoId);
-      console.log(JSON.stringify(video, null, 2));
+      try {
+        const videoPath = path.join('api', 'video', `${videoId}.json`);
+        const video = JSON.parse(await fs.readFile(videoPath, 'utf-8'));
+        console.log(JSON.stringify(video, null, 2));
+      } catch (error) {
+        console.error(`Video ${videoId} not found`);
+      }
       break;
     }
 
     case 'export': {
       const videoId = args[1];
       const outputDir = args[2] || 'exports';
-      await reader.exportVideoData(videoId, outputDir);
+
+      try {
+        const videoPath = path.join('api', 'video', `${videoId}.json`);
+        const video = JSON.parse(await fs.readFile(videoPath, 'utf-8'));
+
+        const exportDir = path.join(outputDir, videoId);
+        await fs.mkdir(exportDir, { recursive: true });
+
+        // Copy main video file
+        await fs.copyFile(videoPath, path.join(exportDir, `${videoId}.json`));
+
+        // Copy caption files
+        const apiVideoDir = path.join('api', 'video');
+        const files = await fs.readdir(apiVideoDir);
+        for (const file of files) {
+          if (file.startsWith(`${videoId}-`) && (file.endsWith('.srt') || file.endsWith('.txt'))) {
+            await fs.copyFile(
+              path.join(apiVideoDir, file),
+              path.join(exportDir, file.replace(`${videoId}-`, ''))
+            );
+          }
+        }
+
+        console.log(`Exported ${videoId} to ${exportDir}`);
+      } catch (error) {
+        console.error(`Failed to export ${videoId}:`, error.message);
+      }
       break;
     }
 
     case 'stats': {
-      const fs = require('fs').promises;
       try {
-        const index = JSON.parse(await fs.readFile('data/index/master.json', 'utf-8'));
+        const stats = JSON.parse(await fs.readFile('api/stats.json', 'utf-8'));
         console.log(`
 Database Statistics:
-- Total videos: ${index.total}
-- Shards: ${Object.keys(index.shards).length}
-- Last updated: ${index.updated}
+- Total videos: ${stats.total_videos}
+- Last updated: ${stats.generated_at}
         `);
       } catch (error) {
-        console.error('No index found. Database is empty.');
+        console.error('No stats found. Database is empty.');
       }
       break;
     }

@@ -7,7 +7,7 @@ Powered by [YouTube.js](https://github.com/LuanRT/YouTube.js) - a JavaScript cli
 ## Features
 
 - 🔄 **Automated scraping** via GitHub Actions
-- 🗂️ **Sharded storage** for 100k+ videos
+- 🗂️ **Direct API storage** for 100k+ videos
 - 🌐 **Static API** hosted on GitHub Pages (no server needed)
 - 🔍 **Search & filtering** with client-side JavaScript
 - 📊 **Multiple formats** (JSON, SRT, TXT)
@@ -121,21 +121,15 @@ pnpm install
 ├── .github/workflows/
 │   ├── scrape.yml              # Data scraping pipeline
 │   └── build-api.yml           # API generation & deployment
-├── data/                   # Sharded video data (auto-generated)
 └── api/                    # Static API files (auto-generated)
 ```
 
 ## Automated Pipelines
 
 ### Data Scraping (`scrape.yml`)
-- **Triggers**: Every minute, webhook API, manual
-- **Process**: Scrapes YouTube URLs → Stores in `data/`
-- **Output**: Compressed sharded data files
-
-### API Building (`build-api.yml`)
-- **Triggers**: When `data/` changes, every 12 hours, manual
-- **Process**: Reads `data/` → Generates `api/` → Deploys to Pages
-- **Output**: Static JSON/SRT/TXT files + GitHub Pages deployment
+- **Triggers**: Every 5 minutes, webhook API, manual
+- **Process**: Scrapes YouTube URLs → Stores in `api/`
+- **Output**: Direct JSON/SRT/TXT files + GitHub Pages deployment
 
 ## Static API Endpoints
 
@@ -155,18 +149,16 @@ pnpm install
 
 ## Data Format
 
-Videos stored in compressed shards:
+Videos stored directly as API files:
 
 ```
-data/
-├── shards/
-│   ├── ab/
-│   │   ├── 0.jsonl.gz    # ~1000 videos per file
-│   │   └── 1.jsonl.gz
-│   └── ac/
-└── index/
-    ├── master.json       # Main index
-    └── 2024-01-15.json   # Daily indexes
+api/
+├── video/
+│   ├── dQw4w9WgXcQ.json    # Video metadata
+│   ├── dQw4w9WgXcQ-en.srt  # English subtitles (SRT)
+│   ├── dQw4w9WgXcQ-en.txt  # English subtitles (plain text)
+│   └── dQw4w9WgXcQ-auto_en.srt # Auto-generated captions
+└── stats.json              # Database statistics
 ```
 
 ### Video Data Structure
@@ -247,7 +239,7 @@ rick_videos = authors.get('Rick Astley', [])
 
 **Designed for massive scale:**
 - ✅ 1M+ videos supported
-- ✅ Git-friendly sharded storage
+- ✅ Git-friendly direct storage
 - ✅ Efficient GitHub Actions workflows
 - ✅ CDN delivery via GitHub Pages
 - ✅ Client-side search capabilities
@@ -261,9 +253,8 @@ GITHUB_TOKEN=<token>     # For GitHub Actions (auto-provided)
 ```
 
 ### Workflow Schedules
-- **Data scraping**: Every minute
-- **API building**: Every 12 hours + on data changes
-- **Manual triggers**: Available for both workflows
+- **Data scraping**: Every 5 minutes
+- **Manual triggers**: Available for workflows
 
 ## Direct Repository Access
 
@@ -274,7 +265,7 @@ Since everything is stored in git:
 git clone https://github.com/youtube-subtitles/youtube-subtitles.git
 
 # Access raw files directly
-curl https://raw.githubusercontent.com/youtube-subtitles/youtube-subtitles/main/data/index/master.json
+curl https://raw.githubusercontent.com/youtube-subtitles/youtube-subtitles/main/api/stats.json
 
 # Use as submodule
 git submodule add https://github.com/youtube-subtitles/youtube-subtitles.git youtube-data
@@ -304,7 +295,7 @@ MIT License
 
 **No captions found**: Not all videos have accessible captions
 
-**Build fails**: Check GitHub Actions logs and data directory permissions
+**Build fails**: Check GitHub Actions logs and API directory permissions
 
 **API not updating**: Verify GitHub Pages is enabled and build pipeline succeeded
 

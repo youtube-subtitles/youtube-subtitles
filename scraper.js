@@ -12,11 +12,8 @@ const CONFIG = {
   BATCH_SIZE: 10,
   MAX_RETRIES: 3,
   RETRY_DELAY: 2000,
-  COMMIT_BATCH_SIZE: 100,
   MAX_RUNTIME_SECONDS: 280, // Leave 20 seconds buffer for cron every 5 minutes
-  RATE_LIMIT_DELAY: 1000,
-  SHARD_SIZE: 1000,  // Videos per shard file
-  INDEX_UPDATE_FREQUENCY: 100  // Update index every N videos
+  RATE_LIMIT_DELAY: 1000
 };
 
 class YouTubeScraperV2 {
@@ -25,9 +22,6 @@ class YouTubeScraperV2 {
     this.startTime = Date.now();
     this.processedCount = 0;
     this.failedUrls = [];
-    this.currentShard = null;
-    this.shardBuffer = [];
-    this.indexBuffer = [];
   }
 
   async initialize() {
@@ -35,7 +29,6 @@ class YouTubeScraperV2 {
       retrieve_player: true,
       enable_safety_mode: false
     });
-    await this.loadCurrentShard();
   }
 
   formatTime(ms) {
@@ -68,43 +61,13 @@ class YouTubeScraperV2 {
     return null;
   }
 
-  getShardPath(videoId) {
-    // Use first 2 chars for directory sharding (1296 possible dirs)
-    const prefix = videoId.substring(0, 2).toLowerCase();
-    const shardNum = Math.floor(this.hashCode(videoId) % 1000);
-    return `data/shards/${prefix}/${shardNum}.jsonl.gz`;
-  }
-
-  hashCode(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
-    }
-    return Math.abs(hash);
-  }
-
-  async loadCurrentShard() {
-    try {
-      const shardInfoPath = 'data/current-shard.json';
-      const shardInfo = JSON.parse(await fs.readFile(shardInfoPath, 'utf-8'));
-      this.currentShard = shardInfo;
-    } catch {
-      this.currentShard = {
-        path: null,
-        count: 0,
-        videos: new Set()
-      };
-    }
-  }
 
   async checkIfProcessed(videoId) {
     try {
-      // Check bloom filter or index first (for speed)
-      const indexPath = 'data/index/master.json';
-      const index = JSON.parse(await fs.readFile(indexPath, 'utf-8'));
-      return index.processed.includes(videoId);
+      // Check if video JSON already exists in API directory
+      const videoPath = path.join('api', 'video', `${videoId}.json`);
+      await fs.access(videoPath);
+      return true;
     } catch {
       return false;
     }
@@ -202,14 +165,13 @@ class YouTubeScraperV2 {
 
       const record = {
         ...videoData,
-        captions
+        captions,
+        has_captions: Object.keys(captions).length > 0,
+        languages: Object.keys(captions)
       };
 
-      // Do not write API artifacts here; we'll generate after scrape
-
-      // Add to shard buffer
-      this.shardBuffer.push(record);
-      this.indexBuffer.push(videoId);
+      // Write directly to API directory
+      await this.writeVideoToAPI(record);
 
       this.processedCount++;
       return videoData;
@@ -227,95 +189,60 @@ class YouTubeScraperV2 {
     }
   }
 
-  async flushShardBuffer() {
-    if (this.shardBuffer.length === 0) return;
+  async writeVideoToAPI(record) {
+    const videoId = record.id;
+    const apiVideoDir = path.join('api', 'video');
+    await fs.mkdir(apiVideoDir, { recursive: true });
 
-    // Group by shard
-    const shards = {};
-    for (const record of this.shardBuffer) {
-      const shardPath = this.getShardPath(record.id);
-      if (!shards[shardPath]) {
-        shards[shardPath] = [];
-      }
-      shards[shardPath].push(record);
-    }
-
-    // Write to each shard
-    for (const [shardPath, records] of Object.entries(shards)) {
-      await this.appendToShard(shardPath, records);
-    }
-
-    // Update index
-    await this.updateIndex(this.indexBuffer);
-
-    // Clear buffers
-    this.shardBuffer = [];
-    this.indexBuffer = [];
-  }
-
-  async appendToShard(shardPath, records) {
-    const dir = path.dirname(shardPath);
-    await fs.mkdir(dir, { recursive: true });
-
-    let existingData = '';
-    try {
-      const compressed = await fs.readFile(shardPath);
-      const decompressed = await gunzip(compressed);
-      existingData = decompressed.toString();
-    } catch {
-      // File doesn't exist yet
-    }
-
-    const newLines = records.map(r => JSON.stringify(r)).join('\n');
-    const allData = existingData + (existingData ? '\n' : '') + newLines;
-
-    const compressed = await gzip(allData);
-    await fs.writeFile(shardPath, compressed);
-
-    console.log(`Added ${records.length} records to ${shardPath}`);
-  }
-
-  async updateIndex(videoIds) {
-    const indexDir = 'data/index';
-    await fs.mkdir(indexDir, { recursive: true });
-
-    const masterIndexPath = path.join(indexDir, 'master.json');
-    let masterIndex;
-
-    try {
-      masterIndex = JSON.parse(await fs.readFile(masterIndexPath, 'utf-8'));
-    } catch {
-      masterIndex = {
-        total: 0,
-        processed: [],
-        shards: {},
-        updated: new Date().toISOString()
-      };
-    }
-
-    // Add new video IDs
-    const newProcessed = new Set([...masterIndex.processed, ...videoIds]);
-    masterIndex.processed = Array.from(newProcessed);
-    masterIndex.total = masterIndex.processed.length;
-    masterIndex.updated = new Date().toISOString();
-
-    // Update shard index
-    for (const videoId of videoIds) {
-      const shardPath = this.getShardPath(videoId);
-      if (!masterIndex.shards[shardPath]) {
-        masterIndex.shards[shardPath] = [];
-      }
-      masterIndex.shards[shardPath].push(videoId);
-    }
-
-    await fs.writeFile(masterIndexPath, JSON.stringify(masterIndex, null, 2));
-
-    // Create date-based index for quick lookups
-    const dateIndex = `${new Date().toISOString().split('T')[0]}.json`;
+    // Write JSON with everything
     await fs.writeFile(
-      path.join(indexDir, dateIndex),
-      JSON.stringify(videoIds, null, 2)
+      path.join(apiVideoDir, `${videoId}.json`),
+      JSON.stringify(record, null, 2)
     );
+
+    // Write caption files
+    for (const [lang, data] of Object.entries(record.captions || {})) {
+      const prefix = data.auto ? 'auto_' : '';
+
+      // Generate SRT
+      const srt = data.segments.map((seg, i) => {
+        const start = this.formatTime(seg.s);
+        const end = this.formatTime(seg.e);
+        return `${i + 1}\n${start} --> ${end}\n${seg.t}\n`;
+      }).join('\n');
+
+      await fs.writeFile(
+        path.join(apiVideoDir, `${videoId}-${prefix}${lang}.srt`),
+        srt
+      );
+
+      // Generate plain text
+      const txt = data.segments.map(seg => seg.t).join(' ');
+      await fs.writeFile(
+        path.join(apiVideoDir, `${videoId}-${prefix}${lang}.txt`),
+        txt
+      );
+    }
+  }
+
+  async generateStats() {
+    const apiVideoDir = path.join('api', 'video');
+    let totalVideos = 0;
+
+    try {
+      const files = await fs.readdir(apiVideoDir);
+      totalVideos = files.filter(f => f.endsWith('.json') && !f.includes('-')).length;
+    } catch {
+      totalVideos = 0;
+    }
+
+    const stats = {
+      total_videos: totalVideos,
+      generated_at: new Date().toISOString()
+    };
+
+    await fs.writeFile(path.join('api', 'stats.json'), JSON.stringify(stats, null, 2));
+    console.log(`Generated stats: ${totalVideos} total videos`);
   }
 
   delay(ms) {
@@ -341,12 +268,6 @@ class YouTubeScraperV2 {
         results.push(result);
       }
 
-      // Flush buffers periodically
-      if (this.shardBuffer.length >= CONFIG.SHARD_SIZE) {
-        await this.flushShardBuffer();
-        await this.commitChanges();
-      }
-
       await this.delay(CONFIG.RATE_LIMIT_DELAY);
     }
 
@@ -359,7 +280,7 @@ class YouTubeScraperV2 {
     try {
       execSync('git config user.name "GitHub Actions Bot"');
       execSync('git config user.email "actions@github.com"');
-      execSync('git add data/');
+      execSync('git add api/');
 
       const message = `Update captions (${this.processedCount} videos) [skip ci]`;
       execSync(`git commit -m "${message}"`);
@@ -372,86 +293,6 @@ class YouTubeScraperV2 {
   }
 }
 
-// Utility to read from shards
-class ShardReader {
-  async getVideo(videoId) {
-    const scraper = new YouTubeScraperV2();
-    const shardPath = scraper.getShardPath(videoId);
-
-    try {
-      const compressed = await fs.readFile(shardPath);
-      const decompressed = await gunzip(compressed);
-      const lines = decompressed.toString().split('\n');
-
-      for (const line of lines) {
-        if (!line) continue;
-        const record = JSON.parse(line);
-        if (record.id === videoId) {
-          return record;
-        }
-      }
-    } catch (error) {
-      console.error(`Failed to read shard: ${error.message}`);
-    }
-
-    return null;
-  }
-
-  async exportVideoData(videoId, outputDir) {
-    const video = await this.getVideo(videoId);
-    if (!video) {
-      console.log(`Video ${videoId} not found`);
-      return;
-    }
-
-    const videoDir = path.join(outputDir, videoId);
-    await fs.mkdir(videoDir, { recursive: true });
-
-    // Write metadata
-    const metadata = { ...video };
-    delete metadata.captions;
-    await fs.writeFile(
-      path.join(videoDir, 'metadata.json'),
-      JSON.stringify(metadata, null, 2)
-    );
-
-    // Write captions
-    for (const [lang, data] of Object.entries(video.captions || {})) {
-      const prefix = data.auto ? 'auto_' : '';
-
-      // Generate SRT
-      const srt = data.segments.map((seg, i) => {
-        const start = this.formatTime(seg.s);
-        const end = this.formatTime(seg.e);
-        return `${i + 1}\n${start} --> ${end}\n${seg.t}\n`;
-      }).join('\n');
-
-      await fs.writeFile(
-        path.join(videoDir, `${prefix}${lang}.srt`),
-        srt
-      );
-
-      // Generate plain text
-      const txt = data.segments.map(seg => seg.t).join(' ');
-      await fs.writeFile(
-        path.join(videoDir, `${prefix}${lang}.txt`),
-        txt
-      );
-    }
-
-    console.log(`Exported ${videoId} to ${videoDir}`);
-  }
-
-  formatTime(ms) {
-    const totalSeconds = Math.floor(ms / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    const milliseconds = ms % 1000;
-
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')},${String(milliseconds).padStart(3, '0')}`;
-  }
-}
 
 async function getUnprocessedUrls() {
   const urlsFile = 'urls.txt';
@@ -504,9 +345,8 @@ async function main() {
       console.log(`Completed processing round. Total processed: ${totalProcessed}`);
     }
 
-    // Final flush
-    await scraper.flushShardBuffer();
-    await scraper.commitChanges();
+    // Generate final stats
+    await scraper.generateStats();
 
     // Always regenerate static API after scrape
     try {
@@ -533,4 +373,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { YouTubeScraperV2, ShardReader };
+module.exports = { YouTubeScraperV2 };
