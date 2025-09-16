@@ -135,6 +135,7 @@ class YouTubeScraperV2 {
         duration: info.basic_info.duration,
         view_count: info.basic_info.view_count,
         upload_date: info.primary_info?.published?.text || null,
+        thumbnail_url: info.basic_info.thumbnail?.[0]?.url,
         url: videoUrl,
         scraped_at: new Date().toISOString()
       };
@@ -474,9 +475,8 @@ async function main() {
       const urls = await getUnprocessedUrls();
 
       if (urls.length === 0) {
-        console.log('No URLs to process, waiting 5 seconds for more...');
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        continue;
+        console.log('No URLs to process');
+        break;
       }
 
       console.log(`Found ${urls.length} URLs to process`);
