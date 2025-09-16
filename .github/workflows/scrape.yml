@@ -4,8 +4,8 @@ on:
   schedule:
     - cron: '0 */6 * * *'  # Run every 6 hours
   workflow_dispatch:  # Allow manual trigger
-  issues:
-    types: [opened, edited]
+  repository_dispatch:
+    types: [scrape_urls]  # Webhook API trigger
 
 permissions:
   contents: write
