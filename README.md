@@ -141,8 +141,7 @@ pnpm install
 
 ### Core Data
 - `GET /api/stats.json` - Database statistics
-- `GET /api/video/{id}.json` - Complete video data with captions
-- `GET /api/video/{id}-metadata.json` - Video metadata only
+- `GET /api/video/{id}.json` - Video metadata (title, author, duration, etc.)
 
 ### Caption Formats
 - `GET /api/video/{id}-{lang}.json` - Captions as JSON
@@ -204,7 +203,7 @@ data/
 ### curl
 ```bash
 # Get video metadata
-curl https://youtube-subtitles.github.io/api/video/dQw4w9WgXcQ-metadata.json
+curl https://youtube-subtitles.github.io/api/video/dQw4w9WgXcQ.json
 
 # Download captions
 curl -o captions.srt https://youtube-subtitles.github.io/api/video/dQw4w9WgXcQ-en.srt
