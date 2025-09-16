@@ -5,27 +5,35 @@
       "title": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)",
       "author": "Rick Astley",
       "duration": 213,
-      "view_count": 1694097272,
+      "view_count": 1694102075,
       "upload_date": "Oct 25, 2009",
-      "has_captions": false,
-      "languages": []
+      "has_captions": true,
+      "languages": [
+        "en",
+        "de-DE",
+        "ja",
+        "pt-BR",
+        "es-419"
+      ]
     },
     {
       "id": "9bZkp7q19f0",
       "title": "PSY - GANGNAM STYLE(강남스타일) M/V",
       "author": "officialpsy",
       "duration": 252,
-      "view_count": 5705174810,
+      "view_count": 5705191277,
       "upload_date": "Jul 15, 2012",
-      "has_captions": false,
-      "languages": []
+      "has_captions": true,
+      "languages": [
+        "en"
+      ]
     },
     {
       "id": "MtN1YnoL46Q",
       "title": "The Duck Song",
       "author": "forrestfire101",
       "duration": 192,
-      "view_count": 666752212,
+      "view_count": 666752751,
       "upload_date": "Mar 23, 2009",
       "has_captions": false,
       "languages": []
@@ -35,7 +43,7 @@
       "title": "Noisestorm - Crab Rave [Monstercat Release]",
       "author": "Monstercat Instinct",
       "duration": 192,
-      "view_count": 375878640,
+      "view_count": 375881065,
       "upload_date": "Apr 1, 2018",
       "has_captions": false,
       "languages": []
@@ -45,10 +53,43 @@
       "title": "The essence of calculus",
       "author": "3Blue1Brown",
       "duration": 1024,
-      "view_count": 10375850,
+      "view_count": 10375932,
       "upload_date": "Apr 28, 2017",
-      "has_captions": false,
-      "languages": []
+      "has_captions": true,
+      "languages": [
+        "ar",
+        "bn",
+        "bg",
+        "zh",
+        "zh-Hant",
+        "zh-TW",
+        "nl",
+        "en",
+        "fil",
+        "fr",
+        "de",
+        "el",
+        "iw",
+        "hi",
+        "hu",
+        "id",
+        "it",
+        "ja",
+        "ko",
+        "mr",
+        "fa",
+        "pl",
+        "pt",
+        "pt-BR",
+        "ru",
+        "es",
+        "sv",
+        "ta",
+        "te",
+        "th",
+        "tr",
+        "uk"
+      ]
     }
   ],
   "authors": {
@@ -137,5 +178,5 @@
       "WUvTyaaNkzM"
     ]
   },
-  "generated_at": "2025-09-16T09:44:16.694Z"
+  "generated_at": "2025-09-16T10:11:12.960Z"
 }
