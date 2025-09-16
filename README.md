@@ -29,28 +29,28 @@ pnpm scrape
 ### 2. Using the Static API
 
 After GitHub Actions builds the API, access it at:
-`https://your-username.github.io/your-repo/api/`
+`https://youtube-subtitles.github.io/youtube-subtitles/api/`
 
 ```javascript
 // Get video data
-const video = await fetch('https://your-username.github.io/your-repo/api/video/dQw4w9WgXcQ.json')
+const video = await fetch('https://youtube-subtitles.github.io/youtube-subtitles/api/video/dQw4w9WgXcQ.json')
   .then(r => r.json());
 
 // Get captions as SRT
-const srt = await fetch('https://your-username.github.io/your-repo/api/video/dQw4w9WgXcQ-en.srt')
+const srt = await fetch('https://youtube-subtitles.github.io/youtube-subtitles/api/video/dQw4w9WgXcQ-en.srt')
   .then(r => r.text());
 
 // Search all videos
-const videos = await fetch('https://your-username.github.io/your-repo/api/search/videos.json')
+const videos = await fetch('https://youtube-subtitles.github.io/youtube-subtitles/api/search/videos.json')
   .then(r => r.json());
 ```
 
 ### 3. Using the JavaScript Client
 
 ```html
-<script src="https://your-username.github.io/your-repo/scripts/youtube-api.js"></script>
+<script src="https://youtube-subtitles.github.io/youtube-subtitles/scripts/youtube-api.js"></script>
 <script>
-const api = new YouTubeSubtitlesAPI('https://your-username.github.io/your-repo/api/');
+const api = new YouTubeSubtitlesAPI('https://youtube-subtitles.github.io/youtube-subtitles/api/');
 
 // Search videos
 const results = await api.searchVideos('rick astley');
@@ -175,20 +175,20 @@ data/
 ### curl
 ```bash
 # Get video metadata
-curl https://username.github.io/repo/api/video/dQw4w9WgXcQ-metadata.json
+curl https://youtube-subtitles.github.io/youtube-subtitles/api/video/dQw4w9WgXcQ-metadata.json
 
 # Download captions
-curl -o captions.srt https://username.github.io/repo/api/video/dQw4w9WgXcQ-en.srt
+curl -o captions.srt https://youtube-subtitles.github.io/youtube-subtitles/api/video/dQw4w9WgXcQ-en.srt
 
 # Search by author
-curl https://username.github.io/repo/api/search/authors.json | jq '.["Rick Astley"]'
+curl https://youtube-subtitles.github.io/youtube-subtitles/api/search/authors.json | jq '.["Rick Astley"]'
 ```
 
 ### JavaScript/Node.js
 ```javascript
 import { YouTubeSubtitlesAPI } from './scripts/youtube-api.js';
 
-const api = new YouTubeSubtitlesAPI('https://username.github.io/repo/api/');
+const api = new YouTubeSubtitlesAPI('https://youtube-subtitles.github.io/youtube-subtitles/api/');
 
 // Get random videos
 const random = await api.getRandomVideos(10);
@@ -208,10 +208,10 @@ const recentShorts = await api.filterVideos({
 import requests
 
 # Get video data
-video = requests.get('https://username.github.io/repo/api/video/dQw4w9WgXcQ.json').json()
+video = requests.get('https://youtube-subtitles.github.io/youtube-subtitles/api/video/dQw4w9WgXcQ.json').json()
 
 # Get all videos by author
-authors = requests.get('https://username.github.io/repo/api/search/authors.json').json()
+authors = requests.get('https://youtube-subtitles.github.io/youtube-subtitles/api/search/authors.json').json()
 rick_videos = authors.get('Rick Astley', [])
 ```
 
@@ -243,13 +243,13 @@ Since everything is stored in git:
 
 ```bash
 # Clone for offline access
-git clone https://github.com/username/repo.git
+git clone https://github.com/youtube-subtitles/youtube-subtitles.git
 
 # Access raw files directly
-curl https://raw.githubusercontent.com/username/repo/main/data/index/master.json
+curl https://raw.githubusercontent.com/youtube-subtitles/youtube-subtitles/main/data/index/master.json
 
 # Use as submodule
-git submodule add https://github.com/username/repo.git youtube-data
+git submodule add https://github.com/youtube-subtitles/youtube-subtitles.git youtube-data
 ```
 
 ## Contributing
