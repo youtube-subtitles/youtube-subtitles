@@ -289,37 +289,7 @@
                     </div>
                 </div>
 
-<!-- Caption Language Endpoint -->
-                <div class="endpoint-card glass-effect rounded-xl p-6 animate-fade-in">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-3 mb-2">
-                                <span class="api-badge">GET</span>
-                                <code class="text-lg font-mono text-gray-200">/api/video/</code><input type="text" value="WUvTyaaNkzM" class="video-id-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-28 inline"><code class="text-lg font-mono text-gray-200">-</code><input type="text" value="auto_en" class="lang-input bg-gray-800 border border-gray-600 rounded px-1 text-gray-200 font-mono text-lg w-16 inline"><code class="text-lg font-mono text-gray-200">.json</code>
-                            </div>
-                            <p class="text-gray-400 mb-2">Captions for specific language</p>
-                            <div class="flex items-center space-x-2">
-                                <button class="update-endpoint-btn bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded text-sm transition-colors"
-                                        data-target="captions-json-response" data-template="/api/video/{id}-{lang}.json">
-                                    Update
-                                </button>
-                            </div>
-                        </div>
-                        <button class="try-endpoint-btn bg-accent-green hover:bg-accent-blue px-4 py-2 rounded-lg transition-colors"
-                                data-endpoint="/api/video/WUvTyaaNkzM-auto_en.json">
-                            🔄 Refresh
-                        </button>
-                    </div>
-
-                    <div class="code-block">
-                        <div class="bg-gray-800 px-4 py-2 text-sm text-gray-300 border-b border-gray-600">
-                            Live Response • English Captions (3Blue1Brown - Calculus)
-                        </div>
-                        <pre><code id="captions-json-response" class="language-json text-sm p-4 block overflow-x-auto max-w-full break-words loading-shimmer">Loading...</code></pre>
-                    </div>
-                </div>
-
-                <!-- Caption SRT Endpoint -->
+<!-- Caption SRT Endpoint -->
                 <div class="endpoint-card glass-effect rounded-xl p-6 animate-fade-in">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex-1">
@@ -343,11 +313,12 @@
 
                     <div class="code-block">
                         <div class="bg-gray-800 px-4 py-2 text-sm text-gray-300 border-b border-gray-600">
-                            Live Response • SRT Format
+                            Live Response • SRT Format (3Blue1Brown - Calculus)
                         </div>
                         <pre><code id="captions-srt-response" class="text-sm p-4 block overflow-x-auto max-w-full break-words whitespace-pre-wrap loading-shimmer">Loading...</code></pre>
                     </div>
                 </div>
+
 
                 <!-- Caption Text Endpoint -->
                 <div class="endpoint-card glass-effect rounded-xl p-6 animate-fade-in">
@@ -617,7 +588,6 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
         function loadAllEndpoints() {
             loadEndpoint('/api/stats.json', 'stats-response');
             loadEndpoint('/api/video/dQw4w9WgXcQ.json', 'video-response');
-            loadEndpoint('/api/video/WUvTyaaNkzM-auto_en.json', 'captions-json-response');
             loadEndpoint('/api/video/WUvTyaaNkzM-auto_en.srt', 'captions-srt-response');
             loadEndpoint('/api/video/WUvTyaaNkzM-auto_en.txt', 'captions-txt-response');
             loadEndpoint('/api/search/videos.json', 'search-response');
@@ -647,7 +617,6 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
         function getTargetId(endpoint) {
             if (endpoint.includes('stats')) return 'stats-response';
             if (endpoint.includes('search')) return 'search-response';
-            if (endpoint.includes('-auto_en.json')) return 'captions-json-response';
             if (endpoint.includes('-auto_en.srt')) return 'captions-srt-response';
             if (endpoint.includes('-auto_en.txt')) return 'captions-txt-response';
             if (endpoint.includes('video/')) return 'video-response';
