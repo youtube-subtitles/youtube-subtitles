@@ -2,6 +2,8 @@
 
 Automated YouTube caption scraper with static API generation. Scrapes video metadata and captions at massive scale, then generates a static API hosted directly on GitHub Pages.
 
+Powered by [YouTube.js](https://github.com/LuanRT/YouTube.js) - a JavaScript client for YouTube's InnerTube API.
+
 ## Features
 
 - 🔄 **Automated scraping** via GitHub Actions
