@@ -12,7 +12,7 @@ const CONFIG = {
   BATCH_SIZE: 10,
   MAX_RETRIES: 3,
   RETRY_DELAY: 2000,
-  MAX_RUNTIME_SECONDS: 280, // Leave 20 seconds buffer for cron every 5 minutes
+  MAX_RUNTIME_SECONDS: process.env.GITHUB_ACTIONS ? 280 : 30, // Short runtime locally
   RATE_LIMIT_DELAY: 1000
 };
 
@@ -164,7 +164,15 @@ class YouTubeScraperV2 {
       }
 
       const record = {
-        ...videoData,
+        id: videoData.id,
+        title: videoData.title,
+        author: videoData.author,
+        duration: videoData.duration,
+        view_count: videoData.view_count,
+        upload_date: videoData.upload_date,
+        thumbnail_url: videoData.thumbnail_url,
+        url: videoData.url,
+        scraped_at: videoData.scraped_at,
         captions,
         has_captions: Object.keys(captions).length > 0,
         languages: Object.keys(captions)
@@ -373,13 +381,18 @@ async function main() {
         console.log(`Completed processing round. Total processed: ${totalProcessed}`);
         lastCheckTime = Date.now();
       } else {
-        // No URLs found, wait 5 seconds before checking again
+        // No URLs found, wait before checking again
+        const checkInterval = process.env.GITHUB_ACTIONS ? 5000 : 100;
         const elapsed = Date.now() - lastCheckTime;
-        if (elapsed < 5000) {
-          await scraper.delay(5000 - elapsed);
+        if (elapsed < checkInterval) {
+          await scraper.delay(checkInterval - elapsed);
         }
         lastCheckTime = Date.now();
-        console.log('No URLs to process, checking again in 5 seconds...');
+        if (!process.env.GITHUB_ACTIONS) {
+          console.log('No URLs to process, checking again quickly...');
+        } else {
+          console.log('No URLs to process, checking again in 5 seconds...');
+        }
       }
     }
 
