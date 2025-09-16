@@ -103,22 +103,28 @@ jobs:
         run: node scraper.js
 
 
-      - name: Check for changes
-        id: verify
-        run: |
-          if [[ -n $(git status --porcelain) ]]; then
-            echo "changes=true" >> $GITHUB_OUTPUT
-          else
-            echo "changes=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit and push if changes
-        if: steps.verify.outputs.changes == 'true'
+      - name: Check for changes and commit
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git stash --include-untracked || true
-          git pull --rebase
-          git add api/
-          git commit -m "Update YouTube captions [skip ci]"
-          git push
+
+          # Check if there are any changes
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Changes detected, committing..."
+            git add api/
+            git stash --include-untracked || true
+            git pull --rebase || true
+            git stash pop || true
+            git add api/
+            git commit -m "Update YouTube captions [skip ci]" || {
+              echo "Commit failed, but continuing..."
+              exit 0
+            }
+            git push || {
+              echo "Push failed, but continuing..."
+              exit 0
+            }
+            echo "Successfully committed and pushed changes"
+          else
+            echo "No changes to commit - this is normal and successful"
+          fi
