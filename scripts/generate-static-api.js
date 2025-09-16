@@ -187,7 +187,7 @@ class StaticAPIGenerator {
       version: "1.0.0",
       description: "Static JSON API for YouTube video data and captions",
       generated_at: new Date().toISOString(),
-      base_url: "https://youtube-subtitles.github.io/api/",
+      base_url: "https://youtube-subtitles.github.io/youtube-subtitles/api/",
       endpoints: {
         "GET /stats.json": "Database statistics",
         "GET /video/{id}.json": "Complete video data with captions",
