@@ -69,14 +69,28 @@ class StaticAPIGenerator {
         const videos = await this.getVideosFromShard(shardPath);
 
         for (const video of videos) {
-          // Full video data
+          const languages = Object.keys(video.captions || {});
+
+          // Main video endpoint: metadata + available languages only (no caption text)
+          const videoOverview = {
+            id: video.id,
+            title: video.title,
+            author: video.author,
+            duration: video.duration,
+            view_count: video.view_count,
+            upload_date: video.upload_date,
+            url: video.url,
+            scraped_at: video.scraped_at,
+            has_captions: languages.length > 0,
+            languages
+          };
           await fs.writeFile(
             path.join(this.apiDir, 'video', `${video.id}.json`),
-            JSON.stringify(video, null, 2)
+            JSON.stringify(videoOverview, null, 2)
           );
 
-          // Metadata only
-          const { captions, ...metadata } = video;
+          // Metadata only (same as overview without languages fields if desired)
+          const metadata = { ...videoOverview };
           await fs.writeFile(
             path.join(this.apiDir, 'video', `${video.id}-metadata.json`),
             JSON.stringify(metadata, null, 2)
