@@ -52,6 +52,20 @@ jobs:
             echo "No URLs found in webhook payload"
           fi
 
+      - name: Fetch URLs from webhook.site
+        if: github.event_name == 'schedule'
+        run: |
+          echo "Fetching URLs from webhook.site..."
+          curl -s "https://webhook.site/token/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca/requests" | \
+            jq -r '.data[]? | select(.method == "POST") | .content | fromjson | .urls[]?' | \
+            sort -u > urls.txt || true
+          if [ -s urls.txt ]; then
+            echo "Found $(wc -l < urls.txt) unique URLs to process:"
+            cat urls.txt
+          else
+            echo "No URLs found in webhook.site"
+          fi
+
       - name: Run scraper
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
