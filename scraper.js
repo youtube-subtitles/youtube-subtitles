@@ -403,52 +403,13 @@ class ShardReader {
 }
 
 async function getUnprocessedUrls() {
-  // Same as before
-  if (process.env.GITHUB_ACTIONS) {
-    const github = require('@actions/github');
-    const token = process.env.GITHUB_TOKEN;
-    const octokit = github.getOctokit(token);
-
-    const allUrls = [];
-    const issuesToProcess = [];
-    let page = 1;
-
-    while (true) {
-      const { data: issues } = await octokit.rest.issues.listForRepo({
-        owner: github.context.repo.owner,
-        repo: github.context.repo.repo,
-        state: 'open',
-        labels: 'youtube-url',
-        per_page: 100,
-        page: page
-      });
-
-      if (issues.length === 0) break;
-
-      for (const issue of issues) {
-        const urls = issue.body.match(/(https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+)/g);
-        if (urls) {
-          urls.forEach(url => {
-            allUrls.push(url);
-            issuesToProcess.push({ url, issueNumber: issue.number });
-          });
-        }
-      }
-
-      page++;
-      if (allUrls.length >= CONFIG.COMMIT_BATCH_SIZE * 2) break;
-    }
-
-    return { urls: allUrls, issuesToProcess };
-  } else {
-    const urlsFile = 'urls.txt';
-    try {
-      const content = await fs.readFile(urlsFile, 'utf-8');
-      const urls = content.split('\n').filter(url => url.trim());
-      return { urls, issuesToProcess: [] };
-    } catch {
-      return { urls: [], issuesToProcess: [] };
-    }
+  const urlsFile = 'urls.txt';
+  try {
+    const content = await fs.readFile(urlsFile, 'utf-8');
+    const urls = content.split('\n').filter(url => url.trim());
+    return urls;
+  } catch {
+    return [];
   }
 }
 
@@ -457,7 +418,7 @@ async function main() {
     const scraper = new YouTubeScraperV2();
     await scraper.initialize();
 
-    const { urls, issuesToProcess } = await getUnprocessedUrls();
+    const urls = await getUnprocessedUrls();
 
     if (urls.length === 0) {
       console.log('No URLs to process');
