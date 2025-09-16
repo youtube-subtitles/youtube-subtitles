@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { ShardReader } = require('./scraper-v2');
+const { ShardReader } = require('./scraper');
 
 async function main() {
   const args = process.argv.slice(2);

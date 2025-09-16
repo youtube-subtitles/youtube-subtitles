@@ -2,11 +2,13 @@
   "name": "youtube-subtitles",
   "version": "1.0.0",
   "description": "Automated YouTube caption scraper",
-  "main": "scraper-v2.js",
+  "main": "scraper.js",
   "scripts": {
-    "start": "node scraper-v2.js",
-    "scrape": "node scraper-v2.js",
+    "start": "node scraper.js",
+    "scrape": "node scraper.js",
     "read": "node reader.js",
+    "api": "node api.js",
+    "dev": "node api.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -20,7 +22,9 @@
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
+    "@fastify/cors": "^11.1.0",
     "dotenv": "^16.4.7",
+    "fastify": "^5.6.0",
     "youtubei.js": "^15.1.1"
   }
 }
