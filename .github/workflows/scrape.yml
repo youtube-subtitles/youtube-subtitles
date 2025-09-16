@@ -66,6 +66,27 @@ jobs:
             echo "No URLs found in webhook.site"
           fi
 
+      - name: Filter existing videos
+        run: |
+          if [ -f urls.txt ] && [ -s urls.txt ]; then
+            echo "Filtering out already processed videos..."
+            while IFS= read -r url; do
+              video_id=$(echo "$url" | sed -n 's/.*[?&]v=\([^&]*\).*/\1/p')
+              if [ -n "$video_id" ] && [ ! -f "api/video/${video_id}.json" ]; then
+                echo "$url"
+              else
+                echo "Skipping already processed: $video_id"
+              fi
+            done < urls.txt > new_urls.txt
+            mv new_urls.txt urls.txt
+            if [ -s urls.txt ]; then
+              echo "$(wc -l < urls.txt) new videos to process:"
+              cat urls.txt
+            else
+              echo "All videos already processed"
+            fi
+          fi
+
       - name: Run scraper
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
