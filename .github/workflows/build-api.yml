@@ -1,0 +1,72 @@
+name: Build Static API
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/**'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */12 * * *'  # Every 12 hours
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build static API
+        run: node scripts/generate-static-api.js
+
+      - name: Check for changes
+        id: verify
+        run: |
+          if [[ -n $(git status --porcelain api/) ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit API changes
+        if: steps.verify.outputs.changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add api/
+          git commit -m "Update static API [skip ci]"
+          git push
+
+      - name: Setup Pages
+        if: steps.verify.outputs.changes == 'true'
+        uses: actions/configure-pages@v4
+
+      - name: Upload to GitHub Pages
+        if: steps.verify.outputs.changes == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        if: steps.verify.outputs.changes == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4

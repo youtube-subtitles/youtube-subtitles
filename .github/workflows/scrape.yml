@@ -45,6 +45,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scraper.js
 
+
       - name: Check for changes
         id: verify
         run: |

@@ -1,0 +1,24 @@
+{
+  "name": "YouTube Subtitles Static API",
+  "version": "1.0.0",
+  "description": "Static JSON API for YouTube video data and captions",
+  "generated_at": "2025-09-16T07:49:43.822Z",
+  "base_url": "https://your-username.github.io/your-repo/api/",
+  "endpoints": {
+    "GET /stats.json": "Database statistics",
+    "GET /video/{id}.json": "Complete video data with captions",
+    "GET /video/{id}-metadata.json": "Video metadata only",
+    "GET /video/{id}-{lang}.json": "Captions for specific language",
+    "GET /video/{id}-{lang}.srt": "Captions in SRT format",
+    "GET /video/{id}-{lang}.txt": "Captions in plain text",
+    "GET /search/index.json": "Full search index",
+    "GET /search/videos.json": "All videos list",
+    "GET /search/authors.json": "Videos grouped by author"
+  },
+  "usage": {
+    "Search by keyword": "Fetch /search/index.json and filter by keywords object",
+    "Get video": "Fetch /video/{videoId}.json",
+    "List by author": "Fetch /search/authors.json and access author key",
+    "Get captions": "Fetch /video/{videoId}-{lang}.srt"
+  }
+}

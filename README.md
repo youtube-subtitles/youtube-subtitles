@@ -1,48 +1,66 @@
 # YouTube Subtitles
 
-Automated YouTube caption scraper and API that extracts video metadata and captions at scale. The repository itself serves as both the data storage and API endpoint.
+Automated YouTube caption scraper with static API generation. Scrapes video metadata and captions at massive scale, then generates a static API hosted directly on GitHub Pages.
 
 ## Features
 
-- 🔄 Automated scraping via GitHub Actions
-- 🗂️ Sharded data storage for massive scale (100k+ videos)
-- 🔍 Full-text search across videos and captions
-- 📊 REST API with multiple output formats
-- 💾 Git-based database (no external dependencies)
-- 🚀 Ready for millions of videos
+- 🔄 **Automated scraping** via GitHub Actions
+- 🗂️ **Sharded storage** for 100k+ videos
+- 🌐 **Static API** hosted on GitHub Pages (no server needed)
+- 🔍 **Search & filtering** with client-side JavaScript
+- 📊 **Multiple formats** (JSON, SRT, TXT)
+- 🚀 **Zero infrastructure costs**
 
 ## Quick Start
 
-### Scraping Videos
+### 1. Scraping Videos
 
-1. **Add URLs via GitHub Issues**
-   - Create issues labeled `youtube-url`
-   - Include YouTube URLs in the issue body
-   - GitHub Actions will process them automatically
+**Via GitHub Issues:**
+- Create issues with label `youtube-url`
+- Include YouTube URLs in issue body
+- GitHub Actions processes them automatically
 
-2. **Local scraping**
-   ```bash
-   echo "https://www.youtube.com/watch?v=dQw4w9WgXcQ" > urls.txt
-   pnpm scrape
-   ```
-
-### API Usage
-
+**Local testing:**
 ```bash
-# Start local API server
-pnpm api
+echo "https://www.youtube.com/watch?v=dQw4w9WgXcQ" > urls.txt
+pnpm scrape
+```
 
-# Check database stats
-curl http://localhost:3000/stats
+### 2. Using the Static API
 
-# Get video data
-curl http://localhost:3000/video/dQw4w9WgXcQ
+After GitHub Actions builds the API, access it at:
+`https://your-username.github.io/your-repo/api/`
 
-# Get captions in SRT format
-curl http://localhost:3000/video/dQw4w9WgXcQ/captions/en/srt
+```javascript
+// Get video data
+const video = await fetch('https://your-username.github.io/your-repo/api/video/dQw4w9WgXcQ.json')
+  .then(r => r.json());
 
-# Search videos
-curl "http://localhost:3000/search?q=rick+astley"
+// Get captions as SRT
+const srt = await fetch('https://your-username.github.io/your-repo/api/video/dQw4w9WgXcQ-en.srt')
+  .then(r => r.text());
+
+// Search all videos
+const videos = await fetch('https://your-username.github.io/your-repo/api/search/videos.json')
+  .then(r => r.json());
+```
+
+### 3. Using the JavaScript Client
+
+```html
+<script src="https://your-username.github.io/your-repo/scripts/youtube-api.js"></script>
+<script>
+const api = new YouTubeSubtitlesAPI('https://your-username.github.io/your-repo/api/');
+
+// Search videos
+const results = await api.searchVideos('rick astley');
+
+// Get captions
+const captions = await api.getCaptionsSRT('dQw4w9WgXcQ', 'en');
+
+// Filter videos
+const shortVideos = await api.filterVideos({ maxDuration: 300 });
+</script>
 ```
 
 ## Installation
@@ -58,58 +76,72 @@ pnpm install
 | Command | Description |
 |---------|-------------|
 | `pnpm scrape` | Scrape URLs from urls.txt or GitHub issues |
-| `pnpm api` | Start REST API server (port 3000) |
+| `pnpm build` | Generate static API files |
 | `pnpm read stats` | Show database statistics |
-| `pnpm read get <videoId>` | Get video data |
+| `pnpm read get <videoId>` | Get specific video data |
 | `pnpm read export <videoId>` | Export to traditional file structure |
 
-## API Endpoints
+## Project Structure
 
-### Core Endpoints
+```
+├── scraper.js              # Main scraper
+├── scripts/
+│   ├── generate-static-api.js   # Static API generator
+│   ├── reader.js                # Data access utility
+│   └── youtube-api.js           # Client library
+├── .github/workflows/
+│   ├── scrape.yml              # Data scraping pipeline
+│   └── build-api.yml           # API generation & deployment
+├── data/                   # Sharded video data (auto-generated)
+└── api/                    # Static API files (auto-generated)
+```
 
-- `GET /` - API documentation
-- `GET /health` - Health check
-- `GET /stats` - Database statistics
+## Automated Pipelines
 
-### Video Data
+### Data Scraping (`scrape.yml`)
+- **Triggers**: Every 6 hours, new issues, manual
+- **Process**: Scrapes YouTube URLs → Stores in `data/`
+- **Output**: Compressed sharded data files
 
-- `GET /video/:id` - Complete video data with captions
-- `GET /video/:id/metadata` - Video metadata only
-- `GET /video/:id/captions` - All captions for video
-- `GET /video/:id/captions?lang=en` - Specific language captions
+### API Building (`build-api.yml`)
+- **Triggers**: When `data/` changes, every 12 hours, manual
+- **Process**: Reads `data/` → Generates `api/` → Deploys to Pages
+- **Output**: Static JSON/SRT/TXT files + GitHub Pages deployment
+
+## Static API Endpoints
+
+### Core Data
+- `GET /api/stats.json` - Database statistics
+- `GET /api/video/{id}.json` - Complete video data with captions
+- `GET /api/video/{id}-metadata.json` - Video metadata only
 
 ### Caption Formats
-
-- `GET /video/:id/captions/:lang/srt` - SubRip format
-- `GET /video/:id/captions/:lang/txt` - Plain text
+- `GET /api/video/{id}-{lang}.json` - Captions as JSON
+- `GET /api/video/{id}-{lang}.srt` - SubRip format
+- `GET /api/video/{id}-{lang}.txt` - Plain text
 
 ### Search & Discovery
+- `GET /api/search/videos.json` - All videos list
+- `GET /api/search/authors.json` - Videos grouped by channel
+- `GET /api/search/index.json` - Full search index with keywords
 
-- `GET /search?q=query` - Search by title/author
-- `GET /videos?limit=50&offset=0` - Paginated video list
-- `GET /videos?author=username` - Filter by channel
-- `GET /videos?min_views=1000` - Filter by view count
-- `GET /videos?max_duration=300` - Filter by duration
-- `GET /random?count=10` - Random videos
+## Data Format
 
-## Data Structure
-
-Videos are stored in a sharded, compressed format optimized for git:
+Videos stored in compressed shards:
 
 ```
 data/
 ├── shards/
 │   ├── ab/
-│   │   ├── 0.jsonl.gz    # Compressed video data
+│   │   ├── 0.jsonl.gz    # ~1000 videos per file
 │   │   └── 1.jsonl.gz
 │   └── ac/
-│       └── 0.jsonl.gz
 └── index/
     ├── master.json       # Main index
     └── 2024-01-15.json   # Daily indexes
 ```
 
-### Video Data Format
+### Video Data Structure
 
 ```json
 {
@@ -125,83 +157,107 @@ data/
     "en": {
       "auto": false,
       "segments": [
-        {"s": 0, "e": 3000, "t": "We're no strangers to love"},
-        {"s": 3000, "e": 6000, "t": "You know the rules and so do I"}
+        {"s": 0, "e": 3000, "t": "We're no strangers to love"}
       ]
     }
   }
 }
 ```
 
-## GitHub Actions Automation
+## GitHub Pages Setup
 
-The scraper runs automatically:
+1. **Enable Pages**: Repository Settings → Pages → Source: "Deploy from a branch" → Branch: `main`
+2. **Wait for build**: `build-api.yml` runs automatically
+3. **Access API**: `https://username.github.io/repo-name/api/`
 
-- **Schedule**: Every 6 hours
-- **Triggers**: New issues labeled `youtube-url`
-- **Manual**: Via workflow dispatch
+## Usage Examples
 
-### Configuration
+### curl
+```bash
+# Get video metadata
+curl https://username.github.io/repo/api/video/dQw4w9WgXcQ-metadata.json
 
-1. Enable Actions in repository settings
-2. Create issues with label `youtube-url`
-3. Include YouTube URLs in issue body
-4. Actions will close issues after processing
+# Download captions
+curl -o captions.srt https://username.github.io/repo/api/video/dQw4w9WgXcQ-en.srt
+
+# Search by author
+curl https://username.github.io/repo/api/search/authors.json | jq '.["Rick Astley"]'
+```
+
+### JavaScript/Node.js
+```javascript
+import { YouTubeSubtitlesAPI } from './scripts/youtube-api.js';
+
+const api = new YouTubeSubtitlesAPI('https://username.github.io/repo/api/');
+
+// Get random videos
+const random = await api.getRandomVideos(10);
+
+// Search videos
+const results = await api.searchVideos('music video');
+
+// Filter by criteria
+const recentShorts = await api.filterVideos({
+  maxDuration: 60,
+  minViews: 100000
+});
+```
+
+### Python
+```python
+import requests
+
+# Get video data
+video = requests.get('https://username.github.io/repo/api/video/dQw4w9WgXcQ.json').json()
+
+# Get all videos by author
+authors = requests.get('https://username.github.io/repo/api/search/authors.json').json()
+rick_videos = authors.get('Rick Astley', [])
+```
 
 ## Scaling
 
-The system is designed for massive scale:
+**Designed for massive scale:**
+- ✅ 1M+ videos supported
+- ✅ Git-friendly sharded storage
+- ✅ Efficient GitHub Actions workflows
+- ✅ CDN delivery via GitHub Pages
+- ✅ Client-side search capabilities
+- ✅ Zero server maintenance
 
-- **Storage**: Sharded data prevents git performance issues
-- **Processing**: Batch commits every 50 videos
-- **Time limits**: Respects GitHub Actions 60-minute limit
-- **Rate limiting**: Built-in delays to respect YouTube's limits
-- **Resume capability**: Can continue from interruptions
-
-## Development
-
-### Local Development
-
-```bash
-# Run scraper locally
-echo "https://youtube.com/watch?v=VIDEO_ID" > urls.txt
-pnpm scrape
-
-# Start API server
-pnpm api
-
-# Test API endpoints
-curl http://localhost:3000/stats
-```
+## Configuration
 
 ### Environment Variables
-
 ```bash
-PORT=3000                # API server port
-GITHUB_TOKEN=<token>     # For GitHub Actions
-NODE_ENV=production      # Production mode
+GITHUB_TOKEN=<token>     # For GitHub Actions (auto-provided)
 ```
+
+### Workflow Schedules
+- **Data scraping**: Every 6 hours
+- **API building**: Every 12 hours + on data changes
+- **Manual triggers**: Available for both workflows
 
 ## Direct Repository Access
 
-Since data is stored in git, you can access it directly:
+Since everything is stored in git:
 
 ```bash
-# Clone repository
-git clone <repository>
+# Clone for offline access
+git clone https://github.com/username/repo.git
 
-# Access raw data files
-curl https://raw.githubusercontent.com/user/repo/main/data/index/master.json
+# Access raw files directly
+curl https://raw.githubusercontent.com/username/repo/main/data/index/master.json
 
-# Use repository as submodule
-git submodule add <repository> youtube-data
+# Use as submodule
+git submodule add https://github.com/username/repo.git youtube-data
 ```
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Submit pull request
+1. Fork repository
+2. Create feature branch
+3. Test with `pnpm scrape` and `pnpm build`
+4. Submit pull request
 
 ## License
 
@@ -210,29 +266,32 @@ ISC License
 ## Limitations
 
 - YouTube API rate limits apply
-- Caption availability depends on video uploader
-- Some parsing errors may occur with newer YouTube layouts
+- Caption availability depends on video settings
 - Processing speed limited by YouTube response times
+- GitHub Actions has 6-hour time limits
 
 ## Troubleshooting
 
 ### Common Issues
 
-**No captions extracted**: Some videos don't have captions or they're not accessible via the API
+**No captions found**: Not all videos have accessible captions
 
-**API errors**: Ensure data directory exists and contains valid index files
+**Build fails**: Check GitHub Actions logs and data directory permissions
 
-**GitHub Actions failures**: Check repository permissions and secrets configuration
+**API not updating**: Verify GitHub Pages is enabled and build pipeline succeeded
 
 ### Debug Commands
 
 ```bash
-# Check if video was processed
-pnpm read get <videoId>
-
-# View database statistics
+# Check scraped data
 pnpm read stats
 
-# Export video for inspection
-pnpm read export <videoId> ./debug
+# Inspect specific video
+pnpm read get dQw4w9WgXcQ
+
+# Rebuild API locally
+pnpm build
+
+# Export for debugging
+pnpm read export dQw4w9WgXcQ ./debug
 ```
