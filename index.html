@@ -162,18 +162,14 @@
                 </p>
 
                 <!-- Quick Stats -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 max-w-4xl mx-auto">
                     <div class="text-center">
                         <div id="total-videos" class="text-3xl font-bold text-accent-green loading-shimmer rounded px-2">---</div>
                         <div class="text-gray-400">Videos Processed</div>
                     </div>
                     <div class="text-center">
-                        <div id="pending-videos" class="text-3xl font-bold text-youtube-red loading-shimmer rounded px-2">---</div>
-                        <div class="text-gray-400">Pending Queue</div>
-                    </div>
-                    <div class="text-center">
-                        <div id="total-queued" class="text-3xl font-bold text-blue-400 loading-shimmer rounded px-2">---</div>
-                        <div class="text-gray-400">Total Queued</div>
+                        <div id="queued" class="text-3xl font-bold text-youtube-red loading-shimmer rounded px-2">---</div>
+                        <div class="text-gray-400">Queued</div>
                     </div>
                     <div class="text-center">
                         <div id="api-speed" class="text-3xl font-bold text-accent-green">~50ms</div>
@@ -221,7 +217,13 @@
     <!-- API Endpoints -->
     <section id="api-endpoints" class="py-16">
         <div class="max-w-7xl mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12">Live API Endpoints</h2>
+            <h2 class="text-3xl font-bold text-center mb-8">Live API Endpoints</h2>
+            <div class="text-center mb-12">
+                <div class="inline-block bg-gray-800 rounded-lg px-6 py-3">
+                    <span class="text-gray-400 text-sm">Base URL:</span>
+                    <code class="text-accent-green font-mono text-lg ml-2">https://youtube-subtitles.github.io</code>
+                </div>
+            </div>
 
             <div class="grid gap-8">
                 <!-- Stats Endpoint -->
@@ -434,11 +436,19 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
     client_payload: {
       urls: [
         'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        'https://www.youtube.com/watch?v=9bZkp7q19f0'
+        'https://www.youtube.com/watch?v=9bZkp7q19f0',
+        'https://www.youtube.com/watch?v=kJQP7kiw5Fk'
       ]
     }
   })
-});</code></pre>
+});
+
+// API endpoints you can use:
+// https://youtube-subtitles.github.io/api/stats.json
+// https://youtube-subtitles.github.io/api/video/dQw4w9WgXcQ.json
+// https://youtube-subtitles.github.io/api/video/dQw4w9WgXcQ-en.srt
+// https://youtube-subtitles.github.io/api/video/dQw4w9WgXcQ-en.txt
+// https://youtube-subtitles.github.io/api/search/videos.json</code></pre>
                     </div>
                 </div>
 
@@ -479,6 +489,16 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
                     <div class="mt-6 p-4 bg-gray-800 rounded-lg">
                         <h4 class="font-semibold mb-2">⚡ Processing Time</h4>
                         <p class="text-gray-400 text-sm">Typically 2-5 minutes from submission to API availability</p>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <a href="youtube-subtitles-api.postman_collection.json" download
+                           class="inline-flex items-center bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/>
+                            </svg>
+                            Download Postman Collection
+                        </a>
                     </div>
                 </div>
             </div>
@@ -615,13 +635,11 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
                 method: 'GET',
                 success: function(data) {
                     $('#total-videos').text(data.total_videos || '0').removeClass('loading-shimmer');
-                    $('#pending-videos').text('0').removeClass('loading-shimmer'); // Static API has no queue
-                    $('#total-queued').text('0').removeClass('loading-shimmer'); // Static API has no queue
+                    $('#queued').text(data.queued || '0').removeClass('loading-shimmer');
                 },
                 error: function() {
                     $('#total-videos').text('N/A').removeClass('loading-shimmer');
-                    $('#pending-videos').text('N/A').removeClass('loading-shimmer');
-                    $('#total-queued').text('N/A').removeClass('loading-shimmer');
+                    $('#queued').text('N/A').removeClass('loading-shimmer');
                 }
             });
         }

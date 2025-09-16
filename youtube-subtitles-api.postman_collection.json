@@ -1,0 +1,145 @@
+{
+  "info": {
+    "name": "YouTube Subtitles API",
+    "description": "Extract YouTube video captions at scale with zero infrastructure. Get subtitles in JSON, SRT, and TXT formats through a blazing-fast static API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Get API Statistics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://youtube-subtitles.github.io/api/stats.json",
+          "protocol": "https",
+          "host": ["youtube-subtitles", "github", "io"],
+          "path": ["api", "stats.json"]
+        },
+        "description": "Get database statistics including total videos processed and current queue status"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Video Data",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://youtube-subtitles.github.io/api/video/dQw4w9WgXcQ.json",
+          "protocol": "https",
+          "host": ["youtube-subtitles", "github", "io"],
+          "path": ["api", "video", "dQw4w9WgXcQ.json"]
+        },
+        "description": "Get complete video data including metadata and all available captions. Replace 'dQw4w9WgXcQ' with any video ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Captions (SRT Format)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://youtube-subtitles.github.io/api/video/dQw4w9WgXcQ-en.srt",
+          "protocol": "https",
+          "host": ["youtube-subtitles", "github", "io"],
+          "path": ["api", "video", "dQw4w9WgXcQ-en.srt"]
+        },
+        "description": "Get captions in SRT subtitle format. Replace 'dQw4w9WgXcQ' with video ID and 'en' with language code."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Captions (Plain Text)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://youtube-subtitles.github.io/api/video/dQw4w9WgXcQ-en.txt",
+          "protocol": "https",
+          "host": ["youtube-subtitles", "github", "io"],
+          "path": ["api", "video", "dQw4w9WgXcQ-en.txt"]
+        },
+        "description": "Get captions as plain text. Replace 'dQw4w9WgXcQ' with video ID and 'en' with language code."
+      },
+      "response": []
+    },
+    {
+      "name": "List All Videos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://youtube-subtitles.github.io/api/search/videos.json",
+          "protocol": "https",
+          "host": ["youtube-subtitles", "github", "io"],
+          "path": ["api", "search", "videos.json"]
+        },
+        "description": "Get a list of all videos available in the database"
+      },
+      "response": []
+    },
+    {
+      "name": "Submit URL for Processing",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"event_type\": \"scrape_urls\",\n  \"client_payload\": {\n    \"urls\": [\n      \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n    ]\n  }\n}"
+        },
+        "url": {
+          "raw": "https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca",
+          "protocol": "https",
+          "host": ["webhook", "site"],
+          "path": ["ac6c2303-e22b-4c2b-9a46-6d82de5e5cca"]
+        },
+        "description": "Submit YouTube URLs for processing. Videos will be automatically scraped and added to the API within 2-5 minutes."
+      },
+      "response": []
+    },
+    {
+      "name": "Submit Multiple URLs",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"event_type\": \"scrape_urls\",\n  \"client_payload\": {\n    \"urls\": [\n      \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\",\n      \"https://www.youtube.com/watch?v=9bZkp7q19f0\",\n      \"https://www.youtube.com/watch?v=kJQP7kiw5Fk\"\n    ]\n  }\n}"
+        },
+        "url": {
+          "raw": "https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca",
+          "protocol": "https",
+          "host": ["webhook", "site"],
+          "path": ["ac6c2303-e22b-4c2b-9a46-6d82de5e5cca"]
+        },
+        "description": "Submit multiple YouTube URLs for batch processing. All videos will be processed automatically."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://youtube-subtitles.github.io",
+      "type": "string"
+    },
+    {
+      "key": "webhookUrl",
+      "value": "https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca",
+      "type": "string"
+    }
+  ]
+}

@@ -238,11 +238,34 @@ class YouTubeScraperV2 {
 
     const stats = {
       total_videos: totalVideos,
+      queued: 0,
       generated_at: new Date().toISOString()
     };
 
     await fs.writeFile(path.join('api', 'stats.json'), JSON.stringify(stats, null, 2));
     console.log(`Generated stats: ${totalVideos} total videos`);
+  }
+
+  async updateQueueStats(queuedCount) {
+    try {
+      const statsPath = path.join('api', 'stats.json');
+      let stats = {};
+
+      try {
+        const existingStats = await fs.readFile(statsPath, 'utf-8');
+        stats = JSON.parse(existingStats);
+      } catch {
+        stats = { total_videos: 0 };
+      }
+
+      stats.queued = queuedCount;
+      stats.generated_at = new Date().toISOString();
+
+      await fs.writeFile(statsPath, JSON.stringify(stats, null, 2));
+      console.log(`Updated queue stats: ${queuedCount} queued`);
+    } catch (error) {
+      console.error('Failed to update queue stats:', error.message);
+    }
   }
 
   delay(ms) {
@@ -310,42 +333,58 @@ async function main() {
     const scraper = new YouTubeScraperV2();
     await scraper.initialize();
 
-    // Check for more URLs every 5 seconds until timeout
     let totalProcessed = 0;
+    let lastCheckTime = Date.now();
+
+    // Run for full 5 minutes, checking for URLs every 5 seconds
     while (!scraper.isTimeUp()) {
       const urls = await getUnprocessedUrls();
 
-      if (urls.length === 0) {
-        console.log('No URLs to process');
-        break;
-      }
+      if (urls.length > 0) {
+        console.log(`Found ${urls.length} URLs to process`);
 
-      console.log(`Found ${urls.length} URLs to process`);
+        // Update queue stats when URLs are found
+        await scraper.updateQueueStats(urls.length);
 
-      for (let i = 0; i < urls.length; i += CONFIG.BATCH_SIZE) {
-        if (scraper.isTimeUp()) {
-          console.log('Time limit reached, stopping');
-          break;
+        for (let i = 0; i < urls.length; i += CONFIG.BATCH_SIZE) {
+          if (scraper.isTimeUp()) {
+            console.log('Time limit reached, stopping');
+            break;
+          }
+
+          const batch = urls.slice(i, i + CONFIG.BATCH_SIZE);
+          await scraper.processBatch(batch);
+          totalProcessed += batch.length;
+
+          // Update remaining count
+          const remaining = urls.length - Math.min(i + CONFIG.BATCH_SIZE, urls.length);
+          await scraper.updateQueueStats(remaining);
+
+          console.log(`Progress: ${Math.min(i + CONFIG.BATCH_SIZE, urls.length)}/${urls.length} URLs processed this round`);
         }
 
-        const batch = urls.slice(i, i + CONFIG.BATCH_SIZE);
-        await scraper.processBatch(batch);
-        totalProcessed += batch.length;
+        // Clear processed URLs
+        try {
+          await fs.writeFile('urls.txt', '');
+        } catch (e) {
+          console.warn('Could not clear urls.txt:', e.message);
+        }
 
-        console.log(`Progress: ${Math.min(i + CONFIG.BATCH_SIZE, urls.length)}/${urls.length} URLs processed this round`);
+        console.log(`Completed processing round. Total processed: ${totalProcessed}`);
+        lastCheckTime = Date.now();
+      } else {
+        // No URLs found, wait 5 seconds before checking again
+        const elapsed = Date.now() - lastCheckTime;
+        if (elapsed < 5000) {
+          await scraper.delay(5000 - elapsed);
+        }
+        lastCheckTime = Date.now();
+        console.log('No URLs to process, checking again in 5 seconds...');
       }
-
-      // Clear processed URLs
-      try {
-        await fs.writeFile('urls.txt', '');
-      } catch (e) {
-        console.warn('Could not clear urls.txt:', e.message);
-      }
-
-      console.log(`Completed processing round. Total processed: ${totalProcessed}`);
     }
 
-    // Generate final stats
+    // Clear queue and generate final stats
+    await scraper.updateQueueStats(0);
     await scraper.generateStats();
 
     // Always regenerate static API after scrape
@@ -361,6 +400,7 @@ async function main() {
 Summary:
 - Total processed: ${totalProcessed} videos
 - Failed: ${scraper.failedUrls.length} URLs
+- Runtime: ${Math.floor((Date.now() - scraper.startTime) / 1000)}s
     `);
 
   } catch (error) {
