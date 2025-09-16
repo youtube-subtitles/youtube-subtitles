@@ -1,0 +1,93 @@
+{
+  "videos": [
+    {
+      "id": "dQw4w9WgXcQ",
+      "title": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)",
+      "author": "Rick Astley",
+      "duration": 213,
+      "view_count": 1694095092,
+      "upload_date": "Oct 25, 2009",
+      "has_captions": false,
+      "languages": []
+    },
+    {
+      "id": "9bZkp7q19f0",
+      "title": "PSY - GANGNAM STYLE(강남스타일) M/V",
+      "author": "officialpsy",
+      "duration": 252,
+      "view_count": 5705168918,
+      "upload_date": "Jul 15, 2012",
+      "has_captions": false,
+      "languages": []
+    },
+    {
+      "id": "MtN1YnoL46Q",
+      "title": "The Duck Song",
+      "author": "forrestfire101",
+      "duration": 192,
+      "view_count": 666752021,
+      "upload_date": "Mar 23, 2009",
+      "has_captions": false,
+      "languages": []
+    }
+  ],
+  "authors": {
+    "Rick Astley": [
+      "dQw4w9WgXcQ"
+    ],
+    "officialpsy": [
+      "9bZkp7q19f0"
+    ],
+    "forrestfire101": [
+      "MtN1YnoL46Q"
+    ]
+  },
+  "keywords": {
+    "rick": [
+      "dQw4w9WgXcQ"
+    ],
+    "astley": [
+      "dQw4w9WgXcQ"
+    ],
+    "never": [
+      "dQw4w9WgXcQ"
+    ],
+    "gonna": [
+      "dQw4w9WgXcQ"
+    ],
+    "give": [
+      "dQw4w9WgXcQ"
+    ],
+    "you": [
+      "dQw4w9WgXcQ"
+    ],
+    "official": [
+      "dQw4w9WgXcQ"
+    ],
+    "video": [
+      "dQw4w9WgXcQ"
+    ],
+    "remaster": [
+      "dQw4w9WgXcQ"
+    ],
+    "psy": [
+      "9bZkp7q19f0"
+    ],
+    "gangnam": [
+      "9bZkp7q19f0"
+    ],
+    "style": [
+      "9bZkp7q19f0"
+    ],
+    "the": [
+      "MtN1YnoL46Q"
+    ],
+    "duck": [
+      "MtN1YnoL46Q"
+    ],
+    "song": [
+      "MtN1YnoL46Q"
+    ]
+  },
+  "generated_at": "2025-09-16T09:19:07.206Z"
+}
