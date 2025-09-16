@@ -69,6 +69,9 @@
             background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
+            will-change: background-position;
+            backface-visibility: hidden;
+            transform: translateZ(0);
         }
         @keyframes shimmer {
             0% { background-position: -200% 0; }
@@ -739,9 +742,10 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
         }
 
         function scrollToSection(sectionId) {
-            $('html, body').animate({
-                scrollTop: $(`#${sectionId}`).offset().top - 100
-            }, 500);
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
         }
     </script>
 </body>
