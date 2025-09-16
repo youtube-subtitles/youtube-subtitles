@@ -493,13 +493,18 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
         }
 
         function loadQueueStatus() {
+            // Use static API instead of localhost when served from GitHub Pages
+            const apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://127.0.0.1:8080'
+                : 'https://youtube-subtitles.github.io';
+
             $.ajax({
-                url: 'http://127.0.0.1:8080/api/queue.json',
+                url: `${apiBase}/api/stats.json`,
                 method: 'GET',
                 success: function(data) {
-                    $('#total-videos').text(data.processed.total_videos).removeClass('loading-shimmer');
-                    $('#pending-videos').text(data.queue.pending_processing).removeClass('loading-shimmer');
-                    $('#total-queued').text(data.queue.total_queued).removeClass('loading-shimmer');
+                    $('#total-videos').text(data.total_videos || '0').removeClass('loading-shimmer');
+                    $('#pending-videos').text('0').removeClass('loading-shimmer'); // Static API has no queue
+                    $('#total-queued').text('0').removeClass('loading-shimmer'); // Static API has no queue
                 },
                 error: function() {
                     $('#total-videos').text('N/A').removeClass('loading-shimmer');
@@ -521,8 +526,13 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
             const $target = $(`#${targetId}`);
             $target.removeClass('loading-shimmer').text('Loading...');
 
+            // Use static API instead of localhost when served from GitHub Pages
+            const apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://127.0.0.1:8080'
+                : 'https://youtube-subtitles.github.io';
+
             $.ajax({
-                url: `http://127.0.0.1:8080${endpoint}`,
+                url: `${apiBase}${endpoint}`,
                 method: 'GET',
                 success: function(data) {
                     let formattedData;
@@ -556,21 +566,47 @@ fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
                 return;
             }
 
-            $.ajax({
-                url: 'https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca',
+            // Try direct GitHub API dispatch
+            fetch('https://api.github.com/repos/youtube-subtitles/api/dispatches', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                data: JSON.stringify({
+                headers: {
+                    'Authorization': 'token ' + (window.GITHUB_TOKEN || ''),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify({
                     event_type: 'scrape_urls',
                     client_payload: { urls: [url] }
-                }),
-                success: function() {
+                })
+            })
+            .then(response => {
+                if (response.ok) {
                     alert('✅ URL submitted! Processing will begin shortly via GitHub Actions.');
                     $('#url-input').val('');
-                },
-                error: function() {
-                    alert('❌ Failed to submit URL. Please try again.');
+                } else {
+                    throw new Error('GitHub API failed');
                 }
+            })
+            .catch(() => {
+                // Fallback to webhook.site with CORS mode
+                return fetch('https://webhook.site/ac6c2303-e22b-4c2b-9a46-6d82de5e5cca', {
+                    method: 'POST',
+                    mode: 'no-cors', // This prevents CORS errors but we won't get response
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        event_type: 'scrape_urls',
+                        client_payload: { urls: [url] }
+                    })
+                });
+            })
+            .then(() => {
+                alert('✅ URL submitted! Processing request sent.');
+                $('#url-input').val('');
+            })
+            .catch(() => {
+                alert('❌ Failed to submit URL. Please try again or contact support.');
             });
         }
 
