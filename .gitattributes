@@ -1,0 +1,9 @@
+# Auto-generated API files - always prefer incoming changes
+api/**/*.json merge=ours
+api/**/*.srt merge=ours
+api/**/*.txt merge=ours
+
+# Treat these as binary to avoid merge conflicts
+api/**/*.json -diff -merge
+api/**/*.srt -diff -merge
+api/**/*.txt -diff -merge
