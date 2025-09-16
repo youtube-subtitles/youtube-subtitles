@@ -2,7 +2,7 @@ name: Build Static API
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - 'data/**'
   workflow_dispatch:
@@ -52,6 +52,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          git pull --rebase origin master
           git add api/
           git commit -m "Update static API [skip ci]"
           git push
