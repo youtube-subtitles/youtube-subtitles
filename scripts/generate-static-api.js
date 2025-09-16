@@ -1,10 +1,12 @@
 const { ShardReader } = require('../scraper');
+const { QueueStatus } = require('./queue-status');
 const fs = require('fs').promises;
 const path = require('path');
 
 class StaticAPIGenerator {
   constructor() {
     this.reader = new ShardReader();
+    this.queueStatus = new QueueStatus();
     this.apiDir = 'api';
   }
 
@@ -16,6 +18,7 @@ class StaticAPIGenerator {
     await fs.mkdir(path.join(this.apiDir, 'search'), { recursive: true });
 
     await this.generateStats();
+    await this.generateQueueStatus();
     await this.generateVideoEndpoints();
     await this.generateSearchIndex();
     await this.generateManifest();
@@ -40,6 +43,20 @@ class StaticAPIGenerator {
       console.log(`Generated stats.json`);
     } catch (error) {
       console.error('Failed to generate stats:', error.message);
+    }
+  }
+
+  async generateQueueStatus() {
+    try {
+      const queueStatus = await this.queueStatus.getStatus();
+
+      await fs.writeFile(
+        path.join(this.apiDir, 'queue.json'),
+        JSON.stringify(queueStatus, null, 2)
+      );
+      console.log(`Generated queue.json`);
+    } catch (error) {
+      console.error('Failed to generate queue status:', error.message);
     }
   }
 
