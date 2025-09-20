@@ -2,7 +2,7 @@
   "name": "YouTube Subtitles Static API",
   "version": "1.0.0",
   "description": "Static JSON API for YouTube video data and captions",
-  "generated_at": "2025-09-20T11:21:53.276Z",
+  "generated_at": "2025-09-20T11:33:12.498Z",
   "base_url": "https://youtube-subtitles.github.io/api/",
   "endpoints": {
     "GET /stats.json": "Database statistics",
